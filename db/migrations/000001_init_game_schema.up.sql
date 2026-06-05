@@ -10,6 +10,7 @@ CREATE TYPE "resource_type" AS ENUM (
   'gold',
   'iron',
   'wildfire'
+  'none'
 );
 
 
