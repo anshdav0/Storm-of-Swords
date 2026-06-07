@@ -7,6 +7,7 @@ import (
 
 	"github.com/anshdav0/Storm-of-Swords.git/internal/config"
 	"github.com/anshdav0/Storm-of-Swords.git/internal/db"
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -22,16 +23,15 @@ func main() {
 	}
 	defer pool.Close()
 
-	router := http.NewServeMux()
+	store := db.MakeStore(pool)
+	_ = store
+
+	router := mux.NewRouter()
 
 	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
-			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-			return
-		}
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, "Server Status: High-Operational.")
-	})
+		fmt.Fprintln(w, "Server Operational")
+	}).Methods("GET")
 
 	// 17. Use the newly named Go_Port field to bind the server address
 	serverAddr := fmt.Sprintf(":%s", cfg.Go_Port)
