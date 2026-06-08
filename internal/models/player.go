@@ -30,7 +30,7 @@ func (ps *PlayerStore) CreatePlayer(ctx context.Context, username, passhash stri
 	query := `
 	INSERT INTO player (username, pass_hash)
 	VALUES ($1, $2)
-	RETURNING id, username, pass_hash, tropies, created_at
+	RETURNING id, username, pass_hash, trophies, created_at
 	`
 
 	player := &Player{}
@@ -66,7 +66,7 @@ func (ps *PlayerStore) FindUser(ctx context.Context, username string) (*Player, 
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			exists = false
-			return nil, exists, fmt.Errorf("FindUser: %w", err)
+			return nil, exists, nil
 		}
 		return nil, exists, fmt.Errorf("FindUser: %w", err)
 	}
