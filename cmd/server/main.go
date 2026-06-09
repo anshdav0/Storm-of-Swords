@@ -5,9 +5,13 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/anshdav0/Storm-of-Swords.git/internal/config"
-	"github.com/anshdav0/Storm-of-Swords.git/internal/db"
 	"github.com/gorilla/mux"
+
+	"github.com/anshdav0/Storm-of-Swords.git/internal/config"
+	"github.com/anshdav0/Storm-of-Swords.git/internal/controller"
+	"github.com/anshdav0/Storm-of-Swords.git/internal/db"
+	"github.com/anshdav0/Storm-of-Swords.git/internal/middleware"
+	"github.com/anshdav0/Storm-of-Swords.git/internal/models"
 )
 
 func main() {
@@ -16,24 +20,36 @@ func main() {
 	//configuration storing in cfg
 	cfg := config.LoadConfig()
 
-	// 16. Pass the newly named DBURL field to your database pool
 	pool, err := db.ConnectDB(cfg.DBURL)
 	if err != nil {
 		log.Fatalf("Database initialization failed: %v", err)
 	}
 	defer pool.Close()
 
+	//storing the connectionpool
 	store := db.MakeStore(pool)
-	_ = store
+	playerStore := models.NewPlayerStore(store)
+	villageStore := models.NewVillageStore(store)
+
+	authCtrl := controller.NewAuthController(playerStore, villageStore, cfg.JWTSecret)
 
 	router := mux.NewRouter()
 
+	//to test server worked
 	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintln(w, "Server Operational")
 	}).Methods("GET")
 
-	// 17. Use the newly named Go_Port field to bind the server address
+	//pages for login/register
+	router.HandleFunc("/register", authCtrl.Register).Methods(http.MethodPost)
+	router.HandleFunc("/login", authCtrl.Login).Methods(http.MethodPost)
+
+	//
+	protected := router.PathPrefix("").Subrouter()
+	protected.Use(middleware.Auth(cfg.JWTSecret))
+	//
+
 	serverAddr := fmt.Sprintf(":%s", cfg.Go_Port)
 	log.Printf("Server is running! Listening on %s\n", serverAddr)
 
