@@ -9,7 +9,7 @@ CREATE TYPE "building_type" AS ENUM (
 CREATE TYPE "resource_type" AS ENUM (
   'gold',
   'iron',
-  'wildfire'
+  'wildfire',
   'none'
 );
 
@@ -81,9 +81,9 @@ CREATE TABLE "storage_building" (
 CREATE TABLE "producer_building" (
   "id" BIGINT,
   "level" INT,
-  "resource_type" resource_type NOT NULL,
-  "production_rate" INT NOT NULL,
-  "production_cap" INT NOT NULL,
+  "resource_type" resource_type,
+  "production_rate" INT,
+  "production_cap" INT,
   "hp" INT NOT NULL,
   "upgrade_cost" INT,
   "upgrade_time" interval,
@@ -97,6 +97,8 @@ CREATE TABLE "village_building" (
   "village_id" BIGINT NOT NULL,
   "building_id" BIGINT NOT NULL,
   "level" INT NOT NULL DEFAULT 1,
+  "x_cor" INT,
+  "y_cor" INT,
   "current_hp" INT NOT NULL,
   "last_collected" TIMESTAMPTZ,
   "upgrade_started" TIMESTAMPTZ
@@ -120,9 +122,6 @@ CREATE TABLE "troop_level_stat" (
   "level" INT NOT NULL,
   "hp" INT NOT NULL,
   "damage" INT NOT NULL,
-  "cost_to_upgrade_gold" INT NOT NULL,
-  "cost_to_upgrade_iron" INT NOT NULL,
-  "cost_to_upgrade_wildfire" INT NOT NULL,
   "unlocks_at_building_level" INT NOT NULL,
   PRIMARY KEY ("troop_id", "level")
 );
