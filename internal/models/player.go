@@ -60,7 +60,7 @@ func (ps *PlayerStore) CreatePlayerandVillage(ctx context.Context, username, pas
 	query = `
 	INSERT INTO village (id, gold, iron, wildfire, level,layout)
 	VALUES ($1,0,0,0,1, '{}')
-	RETURNING id, gold, iron, wildfire, level, layout
+	RETURNING id, gold, iron, wildfire, level
 	`
 	err = tx.QueryRow(ctx, query, player.ID).Scan(
 		&village.ID,
@@ -68,7 +68,6 @@ func (ps *PlayerStore) CreatePlayerandVillage(ctx context.Context, username, pas
 		&village.Iron,
 		&village.Wildfire,
 		&village.Level,
-		&village.Layout,
 	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("CreateVillage: %w", err)
