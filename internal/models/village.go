@@ -50,9 +50,11 @@ func (vs VillageStore) GetVillage(ctx context.Context, playerID int64) (*Village
 	return village, nil
 }
 
+// function which will do any purchase done as a part of previously existing transaction or as a new one as needed at that time
 func (vs *VillageStore) Purchase(ctx context.Context, tx pgx.Tx, villageID int64, cost Cost) (bool, error) {
 	var gold, iron, wildfire int
 
+	//get the data of available resources
 	var err error
 	if tx != nil {
 		err = tx.QueryRow(ctx, `
@@ -67,10 +69,12 @@ func (vs *VillageStore) Purchase(ctx context.Context, tx pgx.Tx, villageID int64
 		return false, fmt.Errorf("Purchase fetch: %w", err)
 	}
 
+	//compare it with the cost of purchase
 	if gold < cost.Gold || iron < cost.Iron || wildfire < cost.Wildfire {
 		return false, fmt.Errorf("not enough resources")
 	}
 
+	//do the actual purchase
 	if tx != nil {
 		_, err = tx.Exec(ctx, `
 			UPDATE village
