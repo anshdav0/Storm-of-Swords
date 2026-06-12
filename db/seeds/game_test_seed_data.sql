@@ -60,12 +60,10 @@ ON CONFLICT ("id", "level") DO NOTHING;
 INSERT INTO "defense_building" ("id", "level", "damage_per_sec", "splash_rad", "range", "hp", "upgrade_cost", "upgrade_time") VALUES
 (6, 1, 25,   NULL, 12,   450,  400,  '5 minutes'),
 (6, 2, 40,   NULL, 12,   520,  1000, '15 minutes'),
-(6, 3, 65,   NULL, 13,   610,  2500, '45 minutes'),
-(6, 4, 95,   3,    14,   720,  6000, '2 hours'),
+(6, 3, 65,   3,    13,   610,  2500, '45 minutes'),
 (7, 1, 35,   4,    10,   600,  1200, '20 minutes'),
 (7, 2, 55,   4,    10,   690,  3000, '1 hour'),
-(7, 3, 80,   5,    11,   800,  7000, '3 hours'),
-(7, 4, 120,  5,    12,   950,  15000,'8 hours')
+(7, 3, 80,   5,    11,   800,  7000, '3 hours')
 ON CONFLICT ("id", "level") DO NOTHING;
 
 
