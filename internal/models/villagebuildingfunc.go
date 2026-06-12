@@ -174,6 +174,12 @@ func (bs *BuildingStore) MoveBuilding(ctx context.Context, playerID int64, place
 	const MapSize = 20
 	var grid [MapSize][MapSize]bool
 
+	for i := 8; i < 12; i++ {
+		for j := 8; j < 12; j++ {
+			grid[i][j] = true
+		}
+	}
+
 	tx, err := bs.store.Pool.Begin(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to start layout transaction: %w", err)
