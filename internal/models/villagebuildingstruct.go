@@ -46,6 +46,16 @@ type StorageBuilding struct {
 	Capacity     int    `json:"capacity"`
 }
 
+type BuildPlacement struct {
+	VillageBuildingID int64 `json:"village_building_id"`
+	XCor              int   `json:"x_cor"`
+	YCor              int   `json:"y_cor"`
+}
+
+type SaveLayoutRequest struct {
+	Placements []BuildPlacement `json:"placements"`
+}
+
 type BuildingStore struct {
 	store *db.Store
 }
