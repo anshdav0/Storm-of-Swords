@@ -30,8 +30,10 @@ func main() {
 	store := db.MakeStore(pool)
 	playerStore := models.NewPlayerStore(store)
 	villageStore := models.NewVillageStore(store)
+	buildingStore := models.NewBuildingStore(store)
 
 	authCtrl := controller.NewAuthController(playerStore, villageStore, cfg.JWTSecret)
+	villageCtrl := controller.NewVillageController(villageStore, buildingStore)
 
 	router := mux.NewRouter()
 
@@ -45,10 +47,11 @@ func main() {
 	router.HandleFunc("/register", authCtrl.Register).Methods(http.MethodPost)
 	router.HandleFunc("/login", authCtrl.Login).Methods(http.MethodPost)
 
-	//
 	protected := router.PathPrefix("").Subrouter()
 	protected.Use(middleware.Auth(cfg.JWTSecret))
-	//
+	protected.HandleFunc("/api/village", villageCtrl.GetVillage).Methods("GET")
+	protected.HandleFunc("/api/village/layout", villageCtrl.SaveLayout).Methods("POST")
+	protected.HandleFunc("/api/village/buildings/{id}/upgrade", villageCtrl.UpgradeBuilding).Methods("POST")
 
 	serverAddr := fmt.Sprintf(":%s", cfg.Go_Port)
 	log.Printf("Server is running! Listening on %s\n", serverAddr)

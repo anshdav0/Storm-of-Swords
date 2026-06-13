@@ -56,3 +56,9 @@ func Auth(jwtSecret string) func(http.Handler) http.Handler {
 		})
 	}
 }
+
+func GetPlayerID(r *http.Request) (int64, bool) {
+	value := r.Context().Value(PlayerIDKey)
+	id, ok := value.(int64)
+	return id, ok
+}

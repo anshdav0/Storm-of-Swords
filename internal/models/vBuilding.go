@@ -3,7 +3,64 @@ package models
 import (
 	"context"
 	"fmt"
+	"time"
+
+	"github.com/anshdav0/Storm-of-Swords.git/internal/db"
 )
+
+type VillageBuilding struct {
+	ID           int64  `json:"id"`
+	VillageID    int64  `json:"village_id"`
+	BuildingID   int64  `json:"building_id"`
+	BuildingName string `json:"building_name"`
+	SizeX        int    `json:"size_x"`
+	SizeY        int    `json:"size_y"`
+	MaxNoAllowed int    `json:"max_no_allowed"`
+	Type         string `json:"type"`
+
+	Level          int           `json:"level"`
+	XCor           *int          `json:"x_cor"`
+	YCor           *int          `json:"y_cor"`
+	CurrentHP      int           `json:"current_hp"`
+	UpgradeCost    int           `json:"upgrade_cost"`
+	UpgradeStarted *time.Time    `json:"upgrade_started"`
+	UpgradeTime    time.Duration `json:"upgrade_time"`
+}
+
+type ProducerBuilding struct {
+	VillageBuilding
+	ResourceType   string     `json:"resource_type"`
+	ProductionRate int        `json:"production_rate"`
+	ProductionCap  int        `json:"production_cap"`
+	LastCollected  *time.Time `json:"last_collected"`
+}
+
+type DefenseBuilding struct {
+	VillageBuilding
+	DPS       int `json:"damage_per_sec"`
+	SplashRad int `json:"splash_rad"`
+	Range     int `json:"range"`
+}
+
+type StorageBuilding struct {
+	VillageBuilding
+	ResourceType string `json:"resource_type"`
+	Capacity     int    `json:"capacity"`
+}
+
+type BuildPlacement struct {
+	VillageBuildingID int64 `json:"village_building_id"`
+	XCor              int   `json:"x_cor"`
+	YCor              int   `json:"y_cor"`
+}
+
+type BuildingStore struct {
+	store *db.Store
+}
+
+func NewBuildingStore(store *db.Store) *BuildingStore {
+	return &BuildingStore{store: store}
+}
 
 func (bs *BuildingStore) GetDefBuilds(ctx context.Context, villageID int64) ([]DefenseBuilding, error) {
 	query := `
@@ -96,136 +153,4 @@ func (bs *BuildingStore) GetProdBuilds(ctx context.Context, villageID int64) ([]
 		return nil, fmt.Errorf("GetProdBuilds rows: %w", rows.Err())
 	}
 	return buildings, nil
-}
-
-func (bs *BuildingStore) UpgradeBuild(ctx context.Context, villageID int64, villageBuildingID int64, vs *VillageStore) error {
-	var level int
-	var buildingID int64
-	var btype string
-
-	err := bs.store.Pool.QueryRow(ctx, `
-		SELECT vb.level, vb.building_id, b.type
-		FROM village_building vb
-		JOIN building b ON b.id = vb.building_id
-		WHERE vb.id = $1 AND vb.village_id = $2
-	`, villageBuildingID, villageID).Scan(&level, &buildingID, &btype)
-	if err != nil {
-		return fmt.Errorf("UpgradeBuild fetch: %w", err)
-	}
-	if level >= 3 {
-		return fmt.Errorf("already at max level")
-	}
-
-	var upgradeCost int
-	switch btype {
-	case "defense":
-		err = bs.store.Pool.QueryRow(ctx, `
-			SELECT upgrade_cost FROM defense_building
-			WHERE id = $1 AND level = $2
-		`, buildingID, level+1).Scan(&upgradeCost)
-	case "storage":
-		err = bs.store.Pool.QueryRow(ctx, `
-			SELECT upgrade_cost FROM storage_building
-			WHERE id = $1 AND level = $2
-		`, buildingID, level+1).Scan(&upgradeCost)
-	case "producer":
-		err = bs.store.Pool.QueryRow(ctx, `
-			SELECT upgrade_cost FROM producer_building
-			WHERE id = $1 AND level = $2
-		`, buildingID, level+1).Scan(&upgradeCost)
-	}
-	if err != nil {
-		return fmt.Errorf("UpgradeBuild cost fetch: %w", err)
-	}
-
-	cost := Cost{}
-	switch btype {
-	case "defense":
-		cost.Gold = upgradeCost
-	}
-	cost.Iron = upgradeCost
-
-	tx, err := bs.store.Pool.Begin(ctx)
-	if err != nil {
-		return fmt.Errorf("UpgradeBuild begin tx: %w", err)
-	}
-	defer tx.Rollback(ctx)
-
-	if a, err := vs.Purchase(ctx, tx, villageID, cost); !a {
-		return err
-	}
-
-	_, err = tx.Exec(ctx, `
-		UPDATE village_building
-		SET upgrade_started = NOW()
-		WHERE id = $1
-	`, villageBuildingID)
-	if err != nil {
-		return fmt.Errorf("UpgradeBuild update: %w", err)
-	}
-	if err = tx.Commit(ctx); err != nil {
-		return fmt.Errorf("UpgradeBuild commit: %w", err)
-	}
-
-	return nil
-}
-
-func (bs *BuildingStore) MoveBuilding(ctx context.Context, playerID int64, placements []BuildPlacement) (*BuildPlacement, error) {
-	const MapSize = 20
-	var grid [MapSize][MapSize]bool
-
-	for i := 8; i < 12; i++ {
-		for j := 8; j < 12; j++ {
-			grid[i][j] = true
-		}
-	}
-
-	tx, err := bs.store.Pool.Begin(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to start layout transaction: %w", err)
-	}
-	defer tx.Rollback(ctx)
-
-	for _, p := range placements {
-		var sizeX, sizeY int
-
-		query := `
-			SELECT b.size_x, b.size_y
-			FROM village_building vb
-			JOIN building b ON b.id = vb.building_id
-			WHERE vb.id = $1 AND vb.village_id = $2
-		`
-		err := tx.QueryRow(ctx, query, p.VillageBuildingID, playerID).Scan(&sizeX, &sizeY)
-		if err != nil {
-			return nil, fmt.Errorf("building ID %d not found", p.VillageBuildingID)
-		}
-
-		if p.XCor < 0 || (p.XCor+sizeX) > MapSize || p.YCor < 0 || (p.YCor+sizeY) > MapSize {
-			return &p, fmt.Errorf("layout rejected: building ID %d overflows the map", p.VillageBuildingID)
-		}
-
-		for i := p.XCor; i < p.XCor+sizeX; i++ {
-			for j := p.YCor; j < p.YCor+sizeY; j++ {
-				if grid[i][j] {
-					return &p, fmt.Errorf("layout rejected: building ID %d overlaps", p.VillageBuildingID)
-				}
-				grid[i][j] = true
-			}
-		}
-
-		_, err = tx.Exec(ctx, `
-			UPDATE village_building
-			SET x_cor = $1, y_cor = $2
-			WHERE id = $3 AND village_id = $4
-		`, p.XCor, p.YCor, p.VillageBuildingID, playerID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to store the building new cordinates: %w", err)
-		}
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		return nil, fmt.Errorf("failed to commit transaction: %w", err)
-	}
-
-	return nil, nil
 }
