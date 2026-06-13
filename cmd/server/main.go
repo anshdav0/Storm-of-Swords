@@ -49,8 +49,9 @@ func main() {
 
 	protected := router.PathPrefix("").Subrouter()
 	protected.Use(middleware.Auth(cfg.JWTSecret))
-	protected.HandleFunc("/api/village", villageCtrl.GetVillage).Methods("GET")
-	protected.HandleFunc("/api/village/layout", villageCtrl.SaveLayout).Methods("POST")
+	protected.HandleFunc("/api/village", villageCtrl.GetVillageBuildings).Methods("GET")
+	protected.HandleFunc("/api/village/changelayout", villageCtrl.SaveLayout).Methods("POST")
+	protected.HandleFunc("/api/village/buildings", villageCtrl.AddBuilding).Methods("POST")
 	protected.HandleFunc("/api/village/buildings/{id}/upgrade", villageCtrl.UpgradeBuilding).Methods("POST")
 
 	serverAddr := fmt.Sprintf(":%s", cfg.Go_Port)
