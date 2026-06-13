@@ -25,6 +25,13 @@ type SaveLayoutRequest struct {
 	Placements []models.BuildPlacement `json:"placements"`
 }
 
+type AddBuilding struct {
+	BuildingID int64                   `json:"building_id"`
+	XCor       int                     `json:"x_cor"`
+	YCor       int                     `json:"y_cor"`
+	Placements []models.BuildPlacement `json:"placements"`
+}
+
 type villageResponse struct {
 	Village  *models.Village           `json:"village"`
 	Defense  []models.DefenseBuilding  `json:"defense_building"`
@@ -32,7 +39,7 @@ type villageResponse struct {
 	Producer []models.ProducerBuilding `json:"producer_building"`
 }
 
-func (vc *VillageControl) GetVillage(w http.ResponseWriter, r *http.Request) {
+func (vc *VillageControl) GetVillageBuildings(w http.ResponseWriter, r *http.Request) {
 	playerID, ok := middleware.GetPlayerID(r)
 	if !ok {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
@@ -92,27 +99,8 @@ func (vc *VillageControl) SaveLayout(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	count := 0
-	arr1, err := vc.bs.GetDefBuilds(ctx, playerID)
-	if err != nil {
-		http.Error(w, "Failed to load defenses", http.StatusInternalServerError)
-		return
-	}
-	count += len(arr1)
-	arr2, err := vc.bs.GetProdBuilds(ctx, playerID)
-	if err != nil {
-		http.Error(w, "Failed to load production", http.StatusInternalServerError)
-		return
-	}
-	count += len(arr2)
-	arr3, err := vc.bs.GetStorBuilds(ctx, playerID)
-	if err != nil {
-		http.Error(w, "Failed to load storage", http.StatusInternalServerError)
-		return
-	}
-	count += len(arr3)
-
-	if len(req.Placements) != count {
+	if vc.CheckLayoutCorrectness(ctx, playerID, req.Placements) {
+	} else {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error": "Rejected: Payload must contain the complete village layout.",
@@ -154,7 +142,7 @@ func (vc *VillageControl) UpgradeBuilding(w http.ResponseWriter, r *http.Request
 	}
 
 	vars := mux.Vars(r)
-	id, err := strconv.ParseInt(vars["id"], 10, 64)
+	villageBuildingID, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
 		http.Error(w, "Invalid building id", http.StatusBadRequest)
 		return
@@ -162,7 +150,7 @@ func (vc *VillageControl) UpgradeBuilding(w http.ResponseWriter, r *http.Request
 
 	ctx := context.Background()
 
-	if err := vc.bs.UpgradeBuild(ctx, playerID, id, vc.vs); err != nil {
+	if err := vc.bs.UpgradeBuild(ctx, playerID, villageBuildingID, vc.vs); err != nil {
 		// check error message to return the right status code
 		msg := err.Error()
 		if strings.Contains(msg, "already at max level") || strings.Contains(msg, "not enough") {
@@ -174,4 +162,67 @@ func (vc *VillageControl) UpgradeBuilding(w http.ResponseWriter, r *http.Request
 	}
 
 	writeJSON(w, http.StatusOK, map[string]string{"message": "building upgraded"})
+}
+
+func (vc *VillageControl) AddBuilding(w http.ResponseWriter, r *http.Request) {
+	playerID, ok := middleware.GetPlayerID(r)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	}
+
+	var req AddBuilding
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body payload", http.StatusBadRequest)
+		return
+	}
+
+	ctx := r.Context()
+
+	if vc.CheckLayoutCorrectness(ctx, playerID, req.Placements) {
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Rejected: Payload must contain the complete current village layout before addition.",
+		})
+		return
+	}
+
+	err := vc.bs.AddBuilding(ctx, playerID, req.BuildingID, req.XCor, req.YCor, req.Placements, vc.vs)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Building purchased and added to village successfully",
+	})
+}
+
+// a helper function to check whether the placement request sent is correct or not
+func (vc *VillageControl) CheckLayoutCorrectness(ctx context.Context, playerID int64, arr []models.BuildPlacement) bool {
+	count := 0
+	arr1, err := vc.bs.GetDefBuilds(ctx, playerID)
+	if err != nil {
+		return false
+	}
+	count += len(arr1)
+	arr2, err := vc.bs.GetProdBuilds(ctx, playerID)
+	if err != nil {
+		return false
+	}
+	count += len(arr2)
+	arr3, err := vc.bs.GetStorBuilds(ctx, playerID)
+	if err != nil {
+		return false
+	}
+	count += len(arr3)
+
+	return count == len(arr)
 }
