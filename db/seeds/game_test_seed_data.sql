@@ -32,9 +32,9 @@ INSERT INTO "producer_building" ("id", "level", "resource_type", "production_rat
 (2, 1, 'wildfire',  50,    150,   250,  300,  '3 minutes'),
 (2, 2, 'wildfire',  120,   400,   310,  800,  '15 minutes'),
 (2, 3, 'wildfire',  250,   1000,  380,  2000, '45 minutes'),
-(3, 1, 'none',       NULL, NULL,  400,  200,  '2 minutes'),
-(3, 2, 'none',       NULL, NULL,  480,  600,  '10 minutes'),
-(3, 3, 'none',       NULL, NULL,  570,  1500, '30 minutes'),
+(3, 1, 'none',       0,    0,     400,  200,  '2 minutes'),
+(3, 2, 'none',       0,    0,     480,  600,  '10 minutes'),
+(3, 3, 'none',       0,    0,     570,  1500, '30 minutes'),
 (4, 1, NULL,         0,    0,     500,  500,   '5 minutes'),
 (4, 2, NULL,         0,    0,     620,  1500,  '30 minutes'),
 (4, 3, NULL,         0,    0,     780,  4000,  '2 hours')
