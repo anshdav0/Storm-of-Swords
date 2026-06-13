@@ -19,10 +19,11 @@ type AuthControl struct {
 	jwtsecret string
 }
 
-func NewAuthController(playerStore *models.PlayerStore, villageStore *models.VillageStore, jwtSecret string) *AuthControl {
+func NewAuthController(playerStore *models.PlayerStore, villageStore *models.VillageStore, buildingStore *models.BuildingStore, jwtSecret string) *AuthControl {
 	return &AuthControl{
 		ps:        playerStore,
 		vs:        villageStore,
+		bs:        buildingStore,
 		jwtsecret: jwtSecret,
 	}
 }
