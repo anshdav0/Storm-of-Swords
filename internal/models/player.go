@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
-
-	"github.com/anshdav0/Storm-of-Swords.git/internal/db"
 )
 
 // Struct corresponding to player table
@@ -19,16 +17,8 @@ type Player struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-type PlayerStore struct {
-	store *db.Store
-}
-
-func NewPlayerStore(store *db.Store) *PlayerStore {
-	return &PlayerStore{store: store}
-}
-
 // create a player and a village simultaneously as a transaction as one cant exist without other
-func (ps *PlayerStore) CreatePlayerandVillage(ctx context.Context, username, passhash string) (*Player, *Village, error) {
+func (ps *PlayerStore) CreatePlayerandVillage(ctx context.Context, username, passhash string, bs *BuildingStore, vs *VillageStore) (*Player, *Village, error) {
 
 	tx, err := ps.store.Pool.Begin(ctx)
 	if err != nil {
@@ -71,6 +61,12 @@ func (ps *PlayerStore) CreatePlayerandVillage(ctx context.Context, username, pas
 	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("CreateVillage: %w", err)
+	}
+
+	var arr []BuildPlacement
+	err = bs.AddBuilding(ctx, tx, player.ID, 12, 8, 8, arr, vs)
+	if err != nil {
+		return nil, nil, fmt.Errorf("Couldnot create townhall: %w", err)
 	}
 
 	if err = tx.Commit(ctx); err != nil {

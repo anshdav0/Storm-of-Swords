@@ -188,7 +188,7 @@ func (vc *VillageControl) AddBuilding(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := vc.bs.AddBuilding(ctx, playerID, req.BuildingID, req.XCor, req.YCor, req.Placements, vc.vs)
+	err := vc.bs.AddBuilding(ctx, nil, playerID, req.BuildingID, req.XCor, req.YCor, req.Placements, vc.vs)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)

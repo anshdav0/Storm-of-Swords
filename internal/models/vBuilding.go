@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"time"
-
-	"github.com/anshdav0/Storm-of-Swords.git/internal/db"
 )
 
 type VillageBuilding struct {
@@ -52,14 +50,6 @@ type BuildPlacement struct {
 	VillageBuildingID int64 `json:"village_building_id"`
 	XCor              int   `json:"x_cor"`
 	YCor              int   `json:"y_cor"`
-}
-
-type BuildingStore struct {
-	store *db.Store
-}
-
-func NewBuildingStore(store *db.Store) *BuildingStore {
-	return &BuildingStore{store: store}
 }
 
 func (bs *BuildingStore) GetDefBuilds(ctx context.Context, villageID int64) ([]DefenseBuilding, error) {

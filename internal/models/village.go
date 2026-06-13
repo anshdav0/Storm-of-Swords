@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/anshdav0/Storm-of-Swords.git/internal/db"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -20,14 +19,6 @@ type Cost struct {
 	Gold     int
 	Iron     int
 	Wildfire int
-}
-
-type VillageStore struct {
-	store *db.Store
-}
-
-func NewVillageStore(store *db.Store) *VillageStore {
-	return &VillageStore{store: store}
 }
 
 func (vs VillageStore) GetVillage(ctx context.Context, playerID int64) (*Village, error) {

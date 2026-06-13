@@ -15,6 +15,7 @@ import (
 type AuthControl struct {
 	ps        *models.PlayerStore
 	vs        *models.VillageStore
+	bs        *models.BuildingStore
 	jwtsecret string
 }
 
@@ -56,7 +57,7 @@ func (authctrl *AuthControl) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//create player
-	player, _, err2 := authctrl.ps.CreatePlayerandVillage(context.Background(), req.Username, string(hash))
+	player, _, err2 := authctrl.ps.CreatePlayerandVillage(context.Background(), req.Username, string(hash), authctrl.bs, authctrl.vs)
 	if err2 != nil {
 		http.Error(w, "Username already taken", http.StatusConflict)
 		return

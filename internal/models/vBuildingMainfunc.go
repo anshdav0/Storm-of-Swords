@@ -135,13 +135,17 @@ func (bs *BuildingStore) MoveBuilding(ctx context.Context, playerID int64, place
 }
 
 // first we add building to village_building in db, perform payment and then check correct coordinates using movebuildingtx function
-func (bs *BuildingStore) AddBuilding(ctx context.Context, playerID int64, buildingID int64, XCor int, YCor int, placements []BuildPlacement, vs *VillageStore) error {
-
-	tx, err := bs.store.Pool.Begin(ctx)
-	if err != nil {
-		return fmt.Errorf("began transaction: %w", err)
+func (bs *BuildingStore) AddBuilding(ctx context.Context, tx pgx.Tx, playerID int64, buildingID int64, XCor int, YCor int, placements []BuildPlacement, vs *VillageStore) error {
+	txlocal := false
+	var err error
+	if tx == nil {
+		tx, err = bs.store.Pool.Begin(ctx)
+		if err != nil {
+			return fmt.Errorf("began transaction: %w", err)
+		}
+		txlocal = true
+		defer tx.Rollback(ctx)
 	}
-	defer tx.Rollback(ctx)
 
 	var maxQuantity int
 	var typeBuilding string
@@ -172,6 +176,9 @@ func (bs *BuildingStore) AddBuilding(ctx context.Context, playerID int64, buildi
 	}
 
 	Hp, err := bs.FindHP(ctx, typeBuilding, buildingID, 1)
+	if err != nil {
+		return fmt.Errorf("failed ot look up base HP: %w", err)
+	}
 	var newVillageBuildingID int64
 	insertQuery := `
 		INSERT INTO village_building (village_id, building_id, level, x_cor, y_cor, upgrade_started, current_hp)
@@ -195,11 +202,11 @@ func (bs *BuildingStore) AddBuilding(ctx context.Context, playerID int64, buildi
 	if err != nil {
 		return err
 	}
-
-	if err = tx.Commit(ctx); err != nil {
-		return fmt.Errorf("failed to commit: %w", err)
+	if txlocal {
+		if err = tx.Commit(ctx); err != nil {
+			return fmt.Errorf("failed to commit: %w", err)
+		}
 	}
-
 	return nil
 
 }
