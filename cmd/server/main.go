@@ -32,7 +32,7 @@ func main() {
 	villageStore := models.NewVillageStore(store)
 	buildingStore := models.NewBuildingStore(store)
 
-	authCtrl := controller.NewAuthController(playerStore, villageStore, cfg.JWTSecret)
+	authCtrl := controller.NewAuthController(playerStore, villageStore, buildingStore, cfg.JWTSecret)
 	villageCtrl := controller.NewVillageController(villageStore, buildingStore)
 
 	router := mux.NewRouter()
