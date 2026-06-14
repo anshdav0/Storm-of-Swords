@@ -17,6 +17,10 @@ type VillageStore struct {
 	store *db.Store
 }
 
+type TroopStore struct {
+	store *db.Store
+}
+
 func NewPlayerStore(store *db.Store) *PlayerStore {
 	return &PlayerStore{store: store}
 }
@@ -27,4 +31,8 @@ func NewBuildingStore(store *db.Store) *BuildingStore {
 
 func NewVillageStore(store *db.Store) *VillageStore {
 	return &VillageStore{store: store}
+}
+
+func NewTroopStore(store *db.Store) *TroopStore {
+	return &TroopStore{store: store}
 }
