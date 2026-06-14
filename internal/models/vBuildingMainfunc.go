@@ -181,8 +181,8 @@ func (bs *BuildingStore) AddBuilding(ctx context.Context, tx pgx.Tx, playerID in
 	}
 	var newVillageBuildingID int64
 	insertQuery := `
-		INSERT INTO village_building (village_id, building_id, level, x_cor, y_cor, upgrade_started, current_hp)
-		VALUES ($1, $2, 1, $3, $4, $5, $6)
+		INSERT INTO village_building (village_id, building_id, level, x_cor, y_cor, upgrade_started, current_hp, last_collected)
+		VALUES ($1, $2, 1, $3, $4, $5, $6, $5)
 		RETURNING id
 	`
 	err = tx.QueryRow(ctx, insertQuery, playerID, buildingID, XCor, YCor, time.Now().UTC(), Hp).Scan(&newVillageBuildingID)
