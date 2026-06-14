@@ -120,7 +120,7 @@ func (ts *TroopStore) RecruitTroop(ctx context.Context, villageID int64, troopID
 		Gold:     troop.CostGold * quantity,
 		Iron:     troop.CostIron * quantity,
 		Wildfire: troop.CostWildfire * quantity,
-	})
+	}, nil)
 	if !paid {
 		return nil, fmt.Errorf("not enough resources: %w", err)
 	}

@@ -38,7 +38,7 @@ func (bs *BuildingStore) UpgradeBuild(ctx context.Context, villageID int64, vill
 	}
 	defer tx.Rollback(ctx)
 
-	if a, err := vs.Purchase(ctx, tx, villageID, cost); !a {
+	if a, err := vs.Purchase(ctx, tx, villageID, cost, nil); !a {
 		return err
 	}
 
@@ -170,7 +170,7 @@ func (bs *BuildingStore) AddBuilding(ctx context.Context, tx pgx.Tx, playerID in
 		return fmt.Errorf("UpgradeBuild cost fetch: %w", err)
 	}
 
-	paymentdone, err := vs.Purchase(ctx, tx, playerID, cost)
+	paymentdone, err := vs.Purchase(ctx, tx, playerID, cost, nil)
 	if !paymentdone {
 		return fmt.Errorf("Payment failed: %w", err)
 	}

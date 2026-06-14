@@ -61,7 +61,7 @@ func (vs *VillageStore) Purchase(ctx context.Context, tx pgx.Tx, villageID int64
 	}
 
 	//compare it with the cost of purchase
-	if cost.Gold <= 0 && cost.Iron <= 0 && cost.Wildfire <= 0 {
+	if bs != nil {
 		capacity, err := vs.FindLimit(ctx, villageID, bs)
 		if gold-cost.Gold > capacity.Gold {
 			cost.Gold = gold - capacity.Gold
