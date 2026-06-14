@@ -36,6 +36,7 @@ func main() {
 	authCtrl := controller.NewAuthController(playerStore, villageStore, buildingStore, cfg.JWTSecret)
 	villageCtrl := controller.NewVillageController(villageStore, buildingStore)
 	troopCtrl := controller.NewTroopController(troopStore, villageStore, buildingStore)
+	resourceCtrl := controller.NewResourceController(villageStore, buildingStore)
 
 	router := mux.NewRouter()
 
@@ -55,6 +56,7 @@ func main() {
 	protected.HandleFunc("/api/village/changelayout", villageCtrl.SaveLayout).Methods("POST")
 	protected.HandleFunc("/api/village/buildings", villageCtrl.AddBuilding).Methods("POST")
 	protected.HandleFunc("/api/village/buildings/{id}/upgrade", villageCtrl.UpgradeBuilding).Methods("POST")
+	protected.HandleFunc("/api/village/collect/{resource_type}", resourceCtrl.CollectResources).Methods("POST")
 	protected.HandleFunc("/api/army", troopCtrl.GetArmy).Methods("GET")
 	protected.HandleFunc("/api/army/recruit", troopCtrl.RecruitTroop).Methods("POST")
 
