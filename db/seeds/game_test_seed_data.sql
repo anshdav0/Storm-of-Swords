@@ -9,7 +9,7 @@ INSERT INTO "building" ("id", "building_name", "size_x", "size_y", "max_no_allow
 (1, 'Iron Mine',                    2, 2, 2, 'producer'),
 (2, 'Alchemist Laboratory',         2, 2, 1, 'producer'),
 (3, 'Barracks',                     3, 3, 1, 'producer'),
-(4, 'Armory (Upgrade Lab)',         3, 3, 1, 'storage'),
+(4, 'Armory (Upgrade Lab)',         3, 3, 1, 'producer'),
 (5, 'Army Camp',                    4, 4, 3, 'storage'),
 (6, 'Scorpion Bolt Launcher',       2, 2, 3, 'defense'),
 (7, 'Wildfire Catapult',            3, 3, 2, 'defense'),
@@ -35,9 +35,9 @@ INSERT INTO "producer_building" ("id", "level", "resource_type", "production_rat
 (3, 1, 'none',       0,    0,     400,  200,  '2 minutes'),
 (3, 2, 'none',       0,    0,     480,  600,  '10 minutes'),
 (3, 3, 'none',       0,    0,     570,  1500, '30 minutes'),
-(4, 1, NULL,         0,    0,     500,  500,   '5 minutes'),
-(4, 2, NULL,         0,    0,     620,  1500,  '30 minutes'),
-(4, 3, NULL,         0,    0,     780,  4000,  '2 hours')
+(4, 1, 'none',         0,    0,     500,  500,   '5 minutes'),
+(4, 2, 'none',         0,    0,     620,  1500,  '30 minutes'),
+(4, 3, 'none',         0,    0,     780,  4000,  '2 hours')
 ON CONFLICT ("id", "level") DO NOTHING;
 
 -- Sub-Category: Storage
