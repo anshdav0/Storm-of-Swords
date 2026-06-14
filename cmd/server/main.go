@@ -31,9 +31,11 @@ func main() {
 	playerStore := models.NewPlayerStore(store)
 	villageStore := models.NewVillageStore(store)
 	buildingStore := models.NewBuildingStore(store)
+	troopStore := models.NewTroopStore(store)
 
 	authCtrl := controller.NewAuthController(playerStore, villageStore, buildingStore, cfg.JWTSecret)
 	villageCtrl := controller.NewVillageController(villageStore, buildingStore)
+	troopCtrl := controller.NewTroopController(troopStore, villageStore, buildingStore)
 
 	router := mux.NewRouter()
 
@@ -53,6 +55,8 @@ func main() {
 	protected.HandleFunc("/api/village/changelayout", villageCtrl.SaveLayout).Methods("POST")
 	protected.HandleFunc("/api/village/buildings", villageCtrl.AddBuilding).Methods("POST")
 	protected.HandleFunc("/api/village/buildings/{id}/upgrade", villageCtrl.UpgradeBuilding).Methods("POST")
+	protected.HandleFunc("/api/army", troopCtrl.GetArmy).Methods("GET")
+	protected.HandleFunc("/api/army/recruit", troopCtrl.RecruitTroop).Methods("POST")
 
 	serverAddr := fmt.Sprintf(":%s", cfg.Go_Port)
 	log.Printf("Server is running! Listening on %s\n", serverAddr)
