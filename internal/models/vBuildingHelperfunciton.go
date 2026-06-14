@@ -2,7 +2,10 @@ package models
 
 import (
 	"context"
+	"errors"
 	"fmt"
+
+	"github.com/jackc/pgx/v5"
 )
 
 // helper function that finds upgrade and building cost
@@ -66,4 +69,31 @@ func (bs *BuildingStore) FindHP(ctx context.Context, btype string, buildingID in
 		return 0, fmt.Errorf("Cant get HP data")
 	}
 	return Hp, nil
+}
+
+func (bs *BuildingStore) GetBuildLevelName(ctx context.Context, villageID int64, buildingID int64) (int, string, error) {
+	// 1. Only select the exact columns you intend to scan!
+	query := `
+        SELECT
+            vb.level, 
+            b.building_name
+        FROM village_building vb
+        JOIN building b ON b.id = vb.building_id
+        WHERE vb.village_id = $1 AND vb.building_id = $2
+    `
+
+	var level int
+	var name string
+
+	// 2. QueryRow executes and Scans inline. No rows.Close() needed.
+	err := bs.store.Pool.QueryRow(ctx, query, villageID, buildingID).Scan(&level, &name)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			// Clean, user-facing error message instead of a server crash
+			return 0, "", fmt.Errorf("you must build an Armoury before recruiting troops")
+		}
+		return 0, "", fmt.Errorf("GetBuildLevelName failed: %w", err)
+	}
+
+	return level, name, nil
 }
