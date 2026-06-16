@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/anshdav0/Storm-of-Swords.git/internal/db"
+	"github.com/anshdav0/Storm-of-Swords.git/backend/internal/db"
 )
 
 // Constructor to initialize everything in one shot

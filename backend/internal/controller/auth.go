@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/anshdav0/Storm-of-Swords.git/internal/models"
+	"github.com/anshdav0/Storm-of-Swords.git/backend/internal/models"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )

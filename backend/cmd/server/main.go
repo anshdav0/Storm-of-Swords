@@ -7,11 +7,11 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/anshdav0/Storm-of-Swords.git/internal/config"
-	"github.com/anshdav0/Storm-of-Swords.git/internal/controller"
-	"github.com/anshdav0/Storm-of-Swords.git/internal/db"
-	"github.com/anshdav0/Storm-of-Swords.git/internal/middleware"
-	"github.com/anshdav0/Storm-of-Swords.git/internal/models"
+	"github.com/anshdav0/Storm-of-Swords.git/backend/internal/config"
+	"github.com/anshdav0/Storm-of-Swords.git/backend/internal/controller"
+	"github.com/anshdav0/Storm-of-Swords.git/backend/internal/db"
+	"github.com/anshdav0/Storm-of-Swords.git/backend/internal/middleware"
+	"github.com/anshdav0/Storm-of-Swords.git/backend/internal/models"
 )
 
 func main() {

@@ -3,8 +3,8 @@ package controller
 import (
 	"net/http"
 
-	"github.com/anshdav0/Storm-of-Swords.git/internal/middleware"
-	"github.com/anshdav0/Storm-of-Swords.git/internal/models"
+	"github.com/anshdav0/Storm-of-Swords.git/backend/internal/middleware"
+	"github.com/anshdav0/Storm-of-Swords.git/backend/internal/models"
 	"github.com/gorilla/mux"
 )
 
