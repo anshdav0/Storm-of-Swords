@@ -1,0 +1,134 @@
+.building-panel {
+  position: absolute;
+  z-index: 200;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 14px;
+  width: 220px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  pointer-events: all;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.panel-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.panel-close {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.panel-close:hover {
+  color: #f1f5f9;
+}
+
+.panel-level {
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
+.panel-details {
+  background-color: #1e293b;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.panel-stat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.panel-stat span:last-child {
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.panel-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.panel-btn {
+  width: 100%;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+}
+
+.panel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.panel-btn.collect {
+  background-color: #1e3a8a;
+  color: #bfdbfe;
+}
+
+.panel-btn.collect:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.panel-btn.recruit {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid #475569;
+}
+
+.panel-btn.recruit:hover {
+  background-color: #334155;
+}
+
+.panel-btn.army {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid #475569;
+}
+
+.panel-btn.army:hover {
+  background-color: #334155;
+}
+
+.panel-btn.upgrade {
+  background-color: #d97706;
+  color: #0f172a;
+}
+
+.panel-btn.upgrade:hover:not(:disabled) {
+  background-color: #f59e0b;
+}
+
+.panel-maxlevel {
+  font-size: 12px;
+  color: #22c55e;
+  font-weight: 600;
+  text-align: center;
+  padding: 6px;
+}

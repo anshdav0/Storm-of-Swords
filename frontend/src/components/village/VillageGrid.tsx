@@ -1,6 +1,8 @@
 import React, { useState, useRef } from "react";
 import type { VillageBuilding } from "../../types";
+import { BuildingPanel } from "./BuildingPanel";
 import "./villageGrid.css";
+import "./BuildingPanel.css";
 
 interface Props {
   buildings: VillageBuilding[];
@@ -8,10 +10,22 @@ interface Props {
   placingBuilding: { buildingId: number; sizeX: number; sizeY: number } | null;
   onLocalBuildingsChange: (updated: VillageBuilding[]) => void;
   onConfirmNewPlacement: (x: number, y: number) => void;
+  onUpgrade: (id: number) => void;
+  onCollect: (id: number) => void;
+  onOpenRecruit: () => void;
+  onOpenArmy: () => void;
+  isUpgrading: boolean;
+  isCollecting: boolean;
 }
 
 const GRID_SIZE = 20;
 const TILE_PX = 32;
+
+const TYPE_COLORS: Record<string, string> = {
+  defense: "#e74c3c",
+  storage: "#3498db",
+  producer: "#2ecc71",
+};
 
 export function VillageGrid({
   buildings,
@@ -19,6 +33,12 @@ export function VillageGrid({
   placingBuilding,
   onLocalBuildingsChange,
   onConfirmNewPlacement,
+  onUpgrade,
+  onCollect,
+  onOpenRecruit,
+  onOpenArmy,
+  isUpgrading,
+  isCollecting,
 }: Props) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [activeDragId, setActiveDragId] = useState<number | null>(null);
@@ -26,21 +46,20 @@ export function VillageGrid({
     x: number;
     y: number;
   } | null>(null);
+  const [selectedBuilding, setSelectedBuilding] =
+    useState<VillageBuilding | null>(null);
 
-  const getTileCoordinates = (e: React.MouseEvent) => {
+  const getTileCoords = (e: React.MouseEvent) => {
     if (!gridRef.current) return null;
     const rect = gridRef.current.getBoundingClientRect();
     const x = Math.floor((e.clientX - rect.left) / TILE_PX);
     const y = Math.floor((e.clientY - rect.top) / TILE_PX);
-
-    if (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
-      return { x, y };
-    }
+    if (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) return { x, y };
     return null;
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    const coords = getTileCoordinates(e);
+    const coords = getTileCoords(e);
     if (!coords) return;
 
     if (placingBuilding) {
@@ -54,11 +73,23 @@ export function VillageGrid({
   };
 
   const handleGridClick = () => {
-    // If clicking down inside a cell block while placing a shop item
     if (placingBuilding && previewCoords) {
       onConfirmNewPlacement(previewCoords.x, previewCoords.y);
       setPreviewCoords(null);
+      return;
     }
+    // click on blank grid area closes the panel
+    setSelectedBuilding(null);
+  };
+
+  const handleBuildingClick = (
+    e: React.MouseEvent,
+    building: VillageBuilding,
+  ) => {
+    // in edit mode clicks are for dragging, not selecting
+    if (isEditMode || placingBuilding) return;
+    e.stopPropagation(); // don't bubble to grid's handleGridClick
+    setSelectedBuilding((prev) => (prev?.id === building.id ? null : building));
   };
 
   return (
@@ -80,9 +111,13 @@ export function VillageGrid({
     >
       {buildings.map((building) => {
         if (building.x_cor === null || building.y_cor === null) return null;
+
+        const isSelected = selectedBuilding?.id === building.id;
+
         return (
           <div
             key={building.id}
+            onClick={(e) => handleBuildingClick(e, building)}
             onMouseDown={(e) => {
               if (!isEditMode) return;
               e.stopPropagation();
@@ -94,26 +129,55 @@ export function VillageGrid({
               top: building.y_cor * TILE_PX,
               width: building.size_x * TILE_PX,
               height: building.size_y * TILE_PX,
-              backgroundColor:
-                building.type === "defense"
-                  ? "#e74c3c"
-                  : building.type === "storage"
-                    ? "#3498db"
-                    : "#2ecc71",
-              border: "1px solid rgba(0,0,0,0.3)",
+              backgroundColor: TYPE_COLORS[building.type] ?? "#888",
+              border: isSelected
+                ? "2px solid #f59e0b"
+                : "1px solid rgba(0,0,0,0.3)",
+              boxShadow: isSelected ? "0 0 10px rgba(245,158,11,0.6)" : "none",
               color: "#fff",
               fontSize: "11px",
               fontWeight: "bold",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              textAlign: "center",
+              padding: "2px",
+              cursor: isEditMode ? "grab" : "pointer",
+              userSelect: "none",
             }}
           >
             {building.building_name}
+
+            {/* panel appears anchored to this building */}
+            {isSelected && !isEditMode && (
+              <BuildingPanel
+                building={building}
+                onClose={() => setSelectedBuilding(null)}
+                onUpgrade={(id) => {
+                  onUpgrade(id);
+                  setSelectedBuilding(null);
+                }}
+                onCollect={(id) => {
+                  onCollect(id);
+                  setSelectedBuilding(null);
+                }}
+                onOpenRecruit={() => {
+                  onOpenRecruit();
+                  setSelectedBuilding(null);
+                }}
+                onOpenArmy={() => {
+                  onOpenArmy();
+                  setSelectedBuilding(null);
+                }}
+                isUpgrading={isUpgrading}
+                isCollecting={isCollecting}
+              />
+            )}
           </div>
         );
       })}
 
+      {/* ghost preview while placing a new building from shop */}
       {placingBuilding && previewCoords && (
         <div
           style={{
