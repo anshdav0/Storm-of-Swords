@@ -1,0 +1,141 @@
+/* components/army/TroopArmyCard.css */
+
+.army-card {
+  background-color: #090d16;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  transition: border-color 0.2s ease;
+}
+
+.army-card:hover {
+  border-color: #334155;
+}
+
+.army-card-left {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.army-card-graphic {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.army-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.army-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.army-card-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.army-card-level {
+  font-size: 12px;
+  background-color: #1e293b;
+  color: #fbbf24;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.army-card-toggle {
+  background: none;
+  border: none;
+  color: #60a5fa;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+.army-card-toggle:hover {
+  text-decoration: underline;
+}
+
+/* Attributes Drawer Box */
+.army-card-stats {
+  display: grid;
+  grid-template-cols: 1fr 1fr;
+  gap: 4px 16px;
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 8px;
+}
+
+.army-card-stats strong {
+  color: #f1f5f9;
+}
+
+/* Right Side Actions Panel */
+.army-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  text-align: right;
+}
+
+.garrison-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.05em;
+  display: block;
+}
+
+.garrison-count {
+  font-size: 24px;
+  font-weight: 900;
+  color: #f8fafc;
+  line-height: 1;
+}
+
+.army-train-btn {
+  background-color: #d97706;
+  color: #0f172a;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.army-train-btn:hover {
+  background-color: #f59e0b;
+}
+
+.army-train-btn:disabled {
+  background-color: #1e293b;
+  color: #64748b;
+  cursor: not-allowed;
+}
