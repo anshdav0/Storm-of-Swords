@@ -32,11 +32,13 @@ func main() {
 	villageStore := models.NewVillageStore(store)
 	buildingStore := models.NewBuildingStore(store)
 	troopStore := models.NewTroopStore(store)
+	gameDataStore := models.NewGameDataStore(store)
 
 	authCtrl := controller.NewAuthController(playerStore, villageStore, buildingStore, cfg.JWTSecret)
 	villageCtrl := controller.NewVillageController(villageStore, buildingStore)
 	troopCtrl := controller.NewTroopController(troopStore, villageStore, buildingStore)
 	resourceCtrl := controller.NewResourceController(villageStore, buildingStore)
+	gameDataCtrl := controller.NewGameDataController(gameDataStore)
 
 	router := mux.NewRouter()
 
@@ -49,6 +51,7 @@ func main() {
 	//pages for login/register
 	router.HandleFunc("/register", authCtrl.Register).Methods(http.MethodPost)
 	router.HandleFunc("/login", authCtrl.Login).Methods(http.MethodPost)
+	router.HandleFunc("/api/gamedata", gameDataCtrl.GetGameData).Methods("GET")
 
 	protected := router.PathPrefix("").Subrouter()
 	protected.Use(middleware.Auth(cfg.JWTSecret))

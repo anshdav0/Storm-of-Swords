@@ -49,7 +49,7 @@ func (ps *PlayerStore) CreatePlayerandVillage(ctx context.Context, username, pas
 	//village creation
 	query = `
 	INSERT INTO village (id, gold, iron, wildfire, level,layout)
-	VALUES ($1,0,0,0,1, '{}')
+	VALUES ($1,10000,10000,10000,1, '{}')
 	RETURNING id, gold, iron, wildfire, level
 	`
 	err = tx.QueryRow(ctx, query, player.ID).Scan(
