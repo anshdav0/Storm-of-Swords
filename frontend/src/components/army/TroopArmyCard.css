@@ -81,7 +81,7 @@
 /* Attributes Drawer Box */
 .army-card-stats {
   display: grid;
-  grid-template-cols: 1fr 1fr;
+  /*grid-template-cols: 1fr 1fr;*/
   gap: 4px 16px;
   font-size: 12px;
   color: #94a3b8;
