@@ -1,0 +1,171 @@
+.recruit-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+
+.recruit-popup {
+  background-color: #0b0f19;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 850px;
+  padding: 24px;
+}
+
+.recruit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  color: #f8fafc;
+}
+
+.recruit-close {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.recruit-list-horizontal {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+}
+
+.recruit-card {
+  flex: 0 0 200px;
+  background-color: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease-in-out;
+}
+
+.recruit-card.expanded {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+.card-locked {
+  opacity: 0.5;
+}
+
+.recruit-card-img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.recruit-card-main-info {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.recruit-card-title {
+  color: #f3f4f6;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+/* 🎯 Pure CSS slide animation for stats box */
+.recruit-card-details {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease-out;
+  font-size: 11px;
+  color: #9ca3af;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  margin-top: 0;
+}
+
+.recruit-card-details.show-details {
+  max-height: 100px;
+  margin-top: 8px;
+  padding: 6px;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0;
+}
+
+.recruit-card-actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 10px;
+}
+
+.details-toggle-btn {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.qty-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #374151;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.qty-selector button {
+  background: none;
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+
+.qty-selector input {
+  width: 40px;
+  background: none;
+  border: none;
+  color: white;
+  text-align: center;
+}
+
+.recruit-buy-btn {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 6px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.recruit-buy-btn:hover {
+  background-color: #3b82f6;
+}
+
+.lock-notice {
+  text-align: center;
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: bold;
+}
