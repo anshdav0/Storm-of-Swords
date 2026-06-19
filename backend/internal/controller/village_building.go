@@ -48,8 +48,8 @@ func (vc *VillageControl) GetVillageBuildings(w http.ResponseWriter, r *http.Req
 
 	ctx := r.Context()
 
-	if err := vc.bs.ApplyCompletedUpgrades(ctx, playerID); err != nil {
-
+	if err := vc.bs.CheckforUpdates(ctx, playerID); err != nil {
+		http.Error(w, "Failed to get update data", http.StatusInternalServerError)
 	}
 
 	village, err := vc.vs.GetVillage(ctx, playerID)

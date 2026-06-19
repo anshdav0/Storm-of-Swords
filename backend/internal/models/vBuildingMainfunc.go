@@ -53,6 +53,7 @@ func (bs *BuildingStore) UpgradeBuild(ctx context.Context, villageID int64, vill
 	if err = tx.Commit(ctx); err != nil {
 		return fmt.Errorf("UpgradeBuild commit: %w", err)
 	}
+	fmt.Printf("Recieved upgrade message for %v", buildingID)
 
 	return nil
 }
@@ -180,12 +181,17 @@ func (bs *BuildingStore) AddBuilding(ctx context.Context, tx pgx.Tx, playerID in
 		return fmt.Errorf("failed ot look up base HP: %w", err)
 	}
 	var newVillageBuildingID int64
+	baselineTime, err := time.Parse(time.RFC3339, "2001-09-11T13:46:00Z")
+	if err != nil {
+		return fmt.Errorf("failed to parse baseline time: %w", err)
+	}
+
 	insertQuery := `
 		INSERT INTO village_building (village_id, building_id, level, x_cor, y_cor, upgrade_started, current_hp, last_collected)
-		VALUES ($1, $2, 1, $3, $4, $5, $6, $5)
+		VALUES ($1, $2, 1, $3, $4, $7, $6, $5)
 		RETURNING id
 	`
-	err = tx.QueryRow(ctx, insertQuery, playerID, buildingID, XCor, YCor, time.Now().UTC(), Hp).Scan(&newVillageBuildingID)
+	err = tx.QueryRow(ctx, insertQuery, playerID, buildingID, XCor, YCor, time.Now().UTC(), Hp, baselineTime).Scan(&newVillageBuildingID)
 	if err != nil {
 		return fmt.Errorf("failed to insert new building row: %w", err)
 	}

@@ -98,3 +98,78 @@ func (vs *VillageStore) CollectResouces(ctx context.Context, villageID int64, re
 	return &result, nil
 
 }
+
+func (bs *BuildingStore) CheckforUpdates(ctx context.Context, villageID int64) error {
+
+	//try to find the joke wink wink nudge nudge
+	baselineTime, err := time.Parse(time.RFC3339, "2001-09-11T13:46:00Z")
+	if err != nil {
+		return fmt.Errorf("failed to parse baseline time: %w", err)
+	}
+
+	query := `
+		SELECT 
+			vb.id, 
+			vb.level
+		FROM village_building vb
+		JOIN producer_building pb 
+		  ON pb.id = vb.building_id AND pb.level = (vb.level + 1)
+		WHERE vb.village_id = $1
+		  AND vb.upgrade_started > $2
+		  AND (vb.upgrade_started + pb.upgrade_time) AT TIME ZONE 'UTC' <= NOW() AT TIME ZONE 'UTC'
+	`
+
+	rows, err := bs.store.Pool.Query(ctx, query, villageID, baselineTime)
+	if err != nil {
+		return fmt.Errorf("CheckforUpdates query failed: %w", err)
+	}
+	defer rows.Close()
+
+	type CompletedUpgrade struct {
+		ID           int64
+		CurrentLevel int
+	}
+	fmt.Printf("Been here")
+
+	var completed []CompletedUpgrade
+	for rows.Next() {
+		var cu CompletedUpgrade
+		err := rows.Scan(&cu.ID, &cu.CurrentLevel)
+		if err != nil {
+			return fmt.Errorf("CheckforUpdates scan failed: %w", err)
+		}
+		completed = append(completed, cu)
+	}
+
+	if len(completed) == 0 {
+		return nil
+	}
+
+	tx, err := bs.store.Pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("CheckforUpdates begin tx failed: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	updateQuery := `
+		UPDATE village_building
+		SET level = $1,
+			upgrade_started = $2
+		WHERE id = $3
+	`
+
+	for _, building := range completed {
+		newLevel := building.CurrentLevel + 1
+
+		_, err := tx.Exec(ctx, updateQuery, newLevel, baselineTime, building.ID)
+		if err != nil {
+			return fmt.Errorf("failed to update completed building level for id %d: %w", building.ID, err)
+		}
+	}
+
+	if err = tx.Commit(ctx); err != nil {
+		return fmt.Errorf("CheckforUpdates commit failed: %w", err)
+	}
+
+	return nil
+}
