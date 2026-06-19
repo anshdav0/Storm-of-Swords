@@ -61,6 +61,22 @@ func (vs *VillageStore) CollectResouces(ctx context.Context, villageID int64, re
 	}
 	defer tx.Rollback(ctx)
 
+	updateQuery := `
+        UPDATE village_building vb
+        SET last_collected = $1
+        FROM building b, producer_building pb
+        WHERE b.id = vb.building_id 
+          AND pb.id = vb.building_id 
+          AND pb.level = vb.level
+          AND vb.village_id = $2
+          AND pb.resource_type = $3
+          AND b.type = 'producer'
+    `
+	_, err = tx.Exec(ctx, updateQuery, now, villageID, resourceType)
+	if err != nil {
+		return nil, fmt.Errorf("CollectResources updating timestamp failed: %w", err)
+	}
+
 	var cost Cost
 	switch resourceType {
 	case "gold":
