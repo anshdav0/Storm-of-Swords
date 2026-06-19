@@ -1,6 +1,8 @@
+import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import type { VillageBuilding, ProducerBuilding } from "../../types";
 import { useGameDataStore } from "../../gamedata/gameDataStore";
-import "./BuildingPanel"
+import "./BuildingPanel.css";
 
 interface Props {
   building: VillageBuilding;
@@ -19,6 +21,25 @@ const BUILDING_IDS = {
   ARMY_CAMP: 5,
 };
 
+//if you missed the joke in backend here it is in the frontend
+const SENTINEL_CUTOFF = new Date("2002-01-01T00:00:00Z").getTime();
+
+function isActiveUpgrade(upgradeStarted: string | null): boolean {
+    if (!upgradeStarted) return false;
+    return new Date(upgradeStarted).getTime() > SENTINEL_CUTOFF;
+}
+
+function parseUpgradeTime(upgradeTime: string): number {
+    const match = upgradeTime.trim().match(/^(\d+):(\d+):(\d+)/);
+    if (!match) return 0;
+
+    const hours = parseInt(match[1]);
+    const minutes = parseInt(match[2]);
+    const seconds = parseInt(match[3]);
+
+    return (hours * 3600 + minutes * 60 + seconds) * 1000;
+}
+
 export function BuildingPanel({
   building,
   onClose,
@@ -29,6 +50,7 @@ export function BuildingPanel({
   isUpgrading,
   isCollecting,
 }: Props) {
+  const queryClient = useQueryClient();
   const getBuilding = useGameDataStore((state) => state.getBuilding);
   const staticData = getBuilding(building.building_id);
   const currentLevelData = staticData?.levels.find(
@@ -37,20 +59,51 @@ export function BuildingPanel({
   const nextLevelData = staticData?.levels.find(
     (l) => l.level === building.level + 1,
   );
-
   const isMaxLevel = building.level >= 3;
-
-  // producer buildings that actually produce a resource
-  // (Barracks and Armoury have resource_type 'none' so they don't show collect)
   const isProducer = building.type === "producer";
   const producerBuilding = building as ProducerBuilding;
   const canCollect = isProducer && producerBuilding.resource_type !== "none";
-
   const isBarracksOrArmoury =
     building.building_id === BUILDING_IDS.BARRACKS ||
     building.building_id === BUILDING_IDS.ARMOURY;
 
   const isArmyCamp = building.building_id === BUILDING_IDS.ARMY_CAMP;
+
+  const activelyUpgrading = isActiveUpgrade(building.upgrade_started);
+
+  // ── countdown state ──
+  const [timeLeft, setTimeLeft] = useState("");
+
+  useEffect(() => {
+      if (!activelyUpgrading || !nextLevelData || !building.upgrade_started) {
+        return;
+    }
+
+      const upgradeMs = parseUpgradeTime(nextLevelData.upgrade_time);
+      const startedAt = new Date(building.upgrade_started).getTime();
+      const finishesAt = startedAt + upgradeMs;
+
+      const tick = () => {
+          const remaining = finishesAt - Date.now();
+
+          if (remaining <= 0) {
+              setTimeLeft("Done");
+              setTimeout(() => {
+                  queryClient.invalidateQueries({ queryKey: ["village"] });
+              }, 1000);
+              return;
+          }
+
+          const totalSecs = Math.ceil(remaining / 1000);
+          const mins = Math.floor(totalSecs / 60);
+          const secs = totalSecs % 60;
+          setTimeLeft(mins > 0 ? `${mins}m ${secs}s` : `${secs}s`);
+      };
+
+      tick();
+      const interval = setInterval(tick, 1000);
+      return () => clearInterval(interval);
+  }, [activelyUpgrading, building.upgrade_started, nextLevelData, queryClient]);
 
   return (
     <div className="building-panel">
@@ -107,7 +160,7 @@ export function BuildingPanel({
 
       <div className="panel-actions">
         {/* COLLECT — only for resource-producing buildings */}
-        {canCollect && (
+        {canCollect && !activelyUpgrading && (
           <button
             className="panel-btn collect"
             onClick={() => onCollect(building.id)}
@@ -118,21 +171,26 @@ export function BuildingPanel({
         )}
 
         {/* TRAIN TROOPS — Barracks and Armoury */}
-        {isBarracksOrArmoury && (
+        {isBarracksOrArmoury && !activelyUpgrading && (
           <button className="panel-btn recruit" onClick={onOpenRecruit}>
             ⚔️ Train Troops
           </button>
         )}
 
         {/* VIEW ARMY — Army Camp */}
-        {isArmyCamp && (
+        {isArmyCamp && !activelyUpgrading && (
           <button className="panel-btn army" onClick={onOpenArmy}>
             🛡️ View Army
           </button>
         )}
 
-        {/* UPGRADE */}
-        {!isMaxLevel && nextLevelData ? (
+        {/* UPGRADE / COUNTDOWN / MAX LEVEL */}
+        {activelyUpgrading ? (
+          <div className="panel-upgrading">
+            <span>🔨 Upgrading → Lv{building.level + 1}</span>
+            <span className="panel-countdown">{timeLeft}</span>
+          </div>
+        ) : !isMaxLevel && nextLevelData ? (
           <button
             className="panel-btn upgrade"
             onClick={() => onUpgrade(building.id)}

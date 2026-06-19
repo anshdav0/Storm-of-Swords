@@ -132,3 +132,22 @@
   text-align: center;
   padding: 6px;
 }
+
+.panel-upgrading {
+    background-color: #1e3a8a;
+    color: #bfdbfe;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-countdown {
+    color: #f59e0b;
+    font-size: 13px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+}
