@@ -1,9 +1,3 @@
--- db/seeds/initial_game_data.sql
-
--- ============================================================================
--- PHASE 1: STATIC GAME BALANCE DATA (BLUEPRINTS)
--- ============================================================================
-
 -- Base Catalog of Buildings (Excluding Town Hall / Keep)
 INSERT INTO "building" ("id", "building_name", "size_x", "size_y", "max_no_allowed", "type") VALUES
 (1, 'Iron Mine',                    2, 2, 2, 'producer'),
@@ -25,49 +19,49 @@ ON CONFLICT ("id") DO NOTHING;
 INSERT INTO "producer_building" ("id", "level", "resource_type", "production_rate", "production_cap", "hp", "upgrade_cost", "upgrade_time") VALUES
 (1, 1, 'iron',      2,   600,   300,  150,  '1 minute'),
 (1, 2, 'iron',      4,   1500,  360,  400,  '5 minutes'),
-(1, 3, 'iron',      7,   3500,  430,  1200, '20 minutes'),
+(1, 3, 'iron',      7,   3500,  430,  400, '20 minutes'),
 (8, 1, 'gold',      2,   600,   300,  150,  '1 minute'),
 (8, 2, 'gold',      4,   1500,  360,  400,  '5 minutes'),
-(8, 3, 'gold',      7,   3500,  430,  1200, '20 minutes'),
-(2, 1, 'wildfire',  5,    150,   250,  300,  '3 minutes'),
-(2, 2, 'wildfire',  10,   400,   310,  800,  '15 minutes'),
-(2, 3, 'wildfire',  20,   1000,  380,  2000, '45 minutes'),
+(8, 3, 'gold',      7,   3500,  430,  400, '20 minutes'),
+(2, 1, 'wildfire',  5,    150,   250,  50,  '3 minutes'),
+(2, 2, 'wildfire',  10,   400,   310,  100,  '15 minutes'),
+(2, 3, 'wildfire',  20,   1000,  380,  200, '45 minutes'),
 (3, 1, 'none',       0,    0,     400,  200,  '2 minutes'),
-(3, 2, 'none',       0,    0,     480,  600,  '10 minutes'),
-(3, 3, 'none',       0,    0,     570,  1500, '30 minutes'),
-(4, 1, 'none',         0,    0,     500,  500,   '5 minutes'),
-(4, 2, 'none',         0,    0,     620,  1500,  '30 minutes'),
-(4, 3, 'none',         0,    0,     780,  4000,  '2 hours')
+(3, 2, 'none',       0,    0,     480,  300,  '10 minutes'),
+(3, 3, 'none',       0,    0,     570,  500, '30 minutes'),
+(4, 1, 'none',         0,    0,     500,  100,   '5 minutes'),
+(4, 2, 'none',         0,    0,     620,  200,  '30 minutes'),
+(4, 3, 'none',         0,    0,     780,  500,  '2 hours')
 ON CONFLICT ("id", "level") DO NOTHING;
 
 -- Sub-Category: Storage
 INSERT INTO "storage_building" ("id", "level", "resource_type", "capacity", "hp", "upgrade_cost", "upgrade_time") VALUES
 
 (5,  1, 'none',           20,    350,  250,   '1 minutes'),
-(5,  2, 'none',           30,    420,  750,   '5 minutes'),
-(5,  3, 'none',           45,    500,  2000,  '10 minutes'),
+(5,  2, 'none',           30,    420,  350,   '5 minutes'),
+(5,  3, 'none',           45,    500,  500,  '10 minutes'),
 (9,  1, 'gold',           100,   350,  250,   '1 minutes'),
-(9,  2, 'gold',           150,   420,  750,   '5 minutes'),
-(9,  3, 'gold',           175,   500,  2000,  '10 minutes'),
+(9,  2, 'gold',           200,   420,  350,   '5 minutes'),
+(9,  3, 'gold',           350,   500,  500,  '10 minutes'),
 (10, 1, 'iron',           100,   350,  250,   '1 minutes'),
-(10, 2, 'iron',           150,   420,  750,   '5 minutes'),
-(10, 3, 'iron',           175,   500,  2000,  '10 minutes'),
+(10, 2, 'iron',           150,   420,  350,   '5 minutes'),
+(10, 3, 'iron',           175,   500,  500,  '10 minutes'),
 (11, 1, 'wildfire',       100,   350,  250,   '1 minutes'),
-(11, 2, 'wildfire',       150,   420,  750,   '5 minutes'),
-(11, 3, 'wildfire',       175,   500,  2000,  '10 minutes'),
+(11, 2, 'wildfire',       150,   420,  350,   '5 minutes'),
+(11, 3, 'wildfire',       175,   500,  500,  '10 minutes'),
 (12, 1, 'iron',           900,   700,  0,  '0 minutes'),
-(12, 2, 'iron',           1500,  800,  2000,  '5 minutes'),
-(12, 3, 'iron',           2000,  1000, 2500,  '10 minutes')
+(12, 2, 'iron',           1500,  800,  800,  '5 minutes'),
+(12, 3, 'iron',           2000,  1000, 1300,  '10 minutes')
 ON CONFLICT ("id", "level") DO NOTHING;
 
 -- Sub-Category: Defenses
 INSERT INTO "defense_building" ("id", "level", "damage_per_sec", "splash_rad", "range", "hp", "upgrade_cost", "upgrade_time") VALUES
 (6, 1, 25,   0,    12,   450,  400,  '5 minutes'),
-(6, 2, 40,   0,    12,   520,  1000, '15 minutes'),
-(6, 3, 65,   3,    13,   610,  2500, '45 minutes'),
-(7, 1, 35,   4,    10,   600,  1200, '20 minutes'),
-(7, 2, 55,   4,    10,   690,  3000, '1 hour'),
-(7, 3, 80,   5,    11,   800,  7000, '3 hours')
+(6, 2, 40,   0,    12,   520,  500, '15 minutes'),
+(6, 3, 65,   3,    13,   610,  600, '45 minutes'),
+(7, 1, 35,   4,    10,   600,  400, '20 minutes'),
+(7, 2, 55,   4,    10,   690,  500, '1 hour'),
+(7, 3, 80,   5,    11,   800,  600, '3 hours')
 ON CONFLICT ("id", "level") DO NOTHING;
 
 
