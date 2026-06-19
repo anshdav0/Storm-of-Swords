@@ -72,7 +72,6 @@ func (bs *BuildingStore) FindHP(ctx context.Context, btype string, buildingID in
 }
 
 func (bs *BuildingStore) GetBuildLevelName(ctx context.Context, villageID int64, buildingID int64) (int, string, error) {
-	// 1. Only select the exact columns you intend to scan!
 	query := `
         SELECT
             vb.level, 
@@ -85,7 +84,6 @@ func (bs *BuildingStore) GetBuildLevelName(ctx context.Context, villageID int64,
 	var level int
 	var name string
 
-	// 2. QueryRow executes and Scans inline. No rows.Close() needed.
 	err := bs.store.Pool.QueryRow(ctx, query, villageID, buildingID).Scan(&level, &name)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

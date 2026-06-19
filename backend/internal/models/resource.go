@@ -108,15 +108,19 @@ func (bs *BuildingStore) CheckforUpdates(ctx context.Context, villageID int64) e
 	}
 
 	query := `
-		SELECT 
-			vb.id, 
-			vb.level
+		SELECT vb.id, vb.level
 		FROM village_building vb
-		JOIN producer_building pb 
-		  ON pb.id = vb.building_id AND pb.level = (vb.level + 1)
+		JOIN building b ON b.id = vb.building_id
+		JOIN (
+			SELECT id, level, upgrade_time FROM defense_building
+			UNION ALL
+			SELECT id, level, upgrade_time FROM storage_building
+			UNION ALL
+			SELECT id, level, upgrade_time FROM producer_building
+		) stat ON stat.id = vb.building_id AND stat.level = vb.level + 1
 		WHERE vb.village_id = $1
 		  AND vb.upgrade_started > $2
-		  AND (vb.upgrade_started + pb.upgrade_time) AT TIME ZONE 'UTC' <= NOW() AT TIME ZONE 'UTC'
+		  AND (vb.upgrade_started + stat.upgrade_time) AT TIME ZONE 'UTC' <= NOW() AT TIME ZONE 'UTC'
 	`
 
 	rows, err := bs.store.Pool.Query(ctx, query, villageID, baselineTime)
