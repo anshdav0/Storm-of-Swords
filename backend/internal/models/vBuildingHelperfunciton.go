@@ -97,3 +97,30 @@ func (bs *BuildingStore) GetBuildLevelName(ctx context.Context, villageID int64,
 
 	return level, name, nil
 }
+
+func (bs *BuildingStore) ApplyCompletedUpgrades(ctx context.Context, villageID int64) error {
+	_, err := bs.store.Pool.Exec(ctx, `
+		UPDATE village_building vb
+		SET
+			level           = vb.level + 1,
+			upgrade_started = '1999-01-01 00:00:00+00'
+		FROM building b
+		JOIN (
+			SELECT id, level, upgrade_time FROM defense_building
+			UNION ALL
+			SELECT id, level, upgrade_time FROM storage_building
+			UNION ALL
+			SELECT id, level, upgrade_time FROM producer_building
+		) stat ON stat.id = b.id AND stat.level = vb.level + 1
+		WHERE vb.village_id      = $1
+		  AND vb.building_id     = b.id
+		  AND vb.upgrade_started IS NOT NULL
+		  AND vb.upgrade_started > '2000-01-01 00:00:00+00'
+		  AND vb.level           < 3
+		  AND NOW() >= vb.upgrade_started + stat.upgrade_time
+	`, villageID)
+	if err != nil {
+		return fmt.Errorf("ApplyCompletedUpgrades: %w", err)
+	}
+	return nil
+}

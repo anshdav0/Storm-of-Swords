@@ -48,6 +48,10 @@ func (vc *VillageControl) GetVillageBuildings(w http.ResponseWriter, r *http.Req
 
 	ctx := r.Context()
 
+	if err := vc.bs.ApplyCompletedUpgrades(ctx, playerID); err != nil {
+
+	}
+
 	village, err := vc.vs.GetVillage(ctx, playerID)
 	if err != nil {
 		http.Error(w, "Failed to fetch village", http.StatusInternalServerError)
