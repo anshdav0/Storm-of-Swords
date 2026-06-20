@@ -84,7 +84,7 @@ func (bs *BattleStore) LoadDefenderSnapshot(ctx context.Context, defenderID int6
 	return snapshot, nil
 }
 
-func (bs *BattleStore) BuildDeployment(ctx context.Context, villageID int64, requests []game.DeployedTroop, ts *TroopStore) ([]game.DeployedTroop, error) {
+func (bs *BattleStore) BuildDeployment(ctx context.Context, villageID int64, requests []DeploymentRequest, ts *TroopStore) ([]game.DeployedTroop, error) {
 
 	if len(requests) == 0 {
 		return nil, fmt.Errorf("must deploy at least one troop")
@@ -122,8 +122,8 @@ func (bs *BattleStore) BuildDeployment(ctx context.Context, villageID int64, req
 			TroopID:   troop.ID,
 			TroopType: troop.Type,
 			Quantity:  req.Quantity,
-			X:         req.X,
-			Y:         req.Y,
+			X:         int(req.X),
+			Y:         int(req.Y),
 			HP:        troop.HP,
 			Damage:    troop.Damage,
 			Speed:     float64(troop.Speed),

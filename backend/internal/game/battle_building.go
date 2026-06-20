@@ -65,7 +65,7 @@ func (b *SimBuilding) dealDamageToTroop(t *SimTroop, currentTime float64) []Batt
 	return events
 }
 
-func allBuildingsDestroyed(state *BattleState) bool {
+func allBuildingDestroyed(state *BattleState) bool {
 	for _, b := range state.Buildings {
 		if !b.Destroyed {
 			return false
