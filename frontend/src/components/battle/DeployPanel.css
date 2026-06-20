@@ -1,0 +1,154 @@
+.deploy-panel {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
+
+.deploy-grid-side, .deploy-army-side {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.deploy-grid-side h3, .deploy-army-side h3 {
+    color: #f1f5f9;
+    font-size: 14px;
+}
+
+.deploy-grid {
+    position: relative;
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    cursor: crosshair;
+}
+
+.deploy-building {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 9px;
+    font-weight: bold;
+    border: 1px solid rgba(0,0,0,0.3);
+}
+
+.deploy-marker {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #f59e0b;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0f172a;
+    font-size: 10px;
+    font-weight: 900;
+    transform: translate(-50%, -50%);
+}
+
+.deploy-hint {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.deploy-army-side {
+    flex: 1;
+    min-width: 280px;
+}
+
+.deploy-troop-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.deploy-troop-row {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 8px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.deploy-troop-row.selected {
+    border-color: #f59e0b;
+    background-color: #292524;
+}
+
+.deploy-troop-name {
+    font-size: 12px;
+    color: #e2e8f0;
+}
+
+.deploy-troop-have {
+    color: #64748b;
+}
+
+.deploy-troop-qty {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.deploy-troop-qty button {
+    width: 22px;
+    height: 22px;
+    background-color: #334155;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+}
+
+.deploy-troop-qty input {
+    width: 36px;
+    text-align: center;
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    color: #fff;
+    border-radius: 4px;
+}
+
+.deploy-empty {
+    color: #64748b;
+    font-size: 12px;
+    text-align: center;
+    padding: 20px;
+}
+
+.deploy-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.deploy-cancel-btn, .deploy-attack-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.deploy-cancel-btn {
+    background-color: #334155;
+    color: #e2e8f0;
+}
+
+.deploy-attack-btn {
+    background-color: #b91c1c;
+    color: #fff;
+}
+
+.deploy-attack-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

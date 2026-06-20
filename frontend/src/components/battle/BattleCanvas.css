@@ -1,0 +1,62 @@
+.battle-canvas-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.battle-time {
+    color: #f59e0b;
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.battle-canvas {
+    position: relative;
+    background-color: #0f172a;
+    border: 1px solid #334155;
+}
+
+.battle-building {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(0,0,0,0.3);
+    transition: opacity 0.3s;
+}
+
+.battle-building-name {
+    font-size: 8px;
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+}
+
+.battle-hp-bar-bg {
+    width: 80%;
+    height: 3px;
+    background-color: rgba(0,0,0,0.4);
+    margin-top: 2px;
+    border-radius: 2px;
+}
+
+.battle-hp-bar-fill {
+    height: 100%;
+    background-color: #22c55e;
+    border-radius: 2px;
+    transition: width 0.3s;
+}
+
+.battle-troop-dot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #f59e0b;
+    transform: translate(-50%, -50%);
+    transition: left 0.35s linear, top 0.35s linear;
+    box-shadow: 0 0 4px rgba(245, 158, 11, 0.8);
+}
