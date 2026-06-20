@@ -6,6 +6,10 @@ import type {
   ArmyEntry,
   RecruitResult,
   CollectResult,
+  OpponentPreview,
+  OpponentBuilding,
+  BattleResponse,
+  DeploymentRequest,
 } from "../types";
 
 // Auth
@@ -45,3 +49,17 @@ export const getArmy = () => apiClient.get<ArmyEntry[]>("/api/army");
 
 export const recruitTroop = (troop_id: number, quantity: number) =>
   apiClient.post<RecruitResult>("/api/army/recruit", { troop_id, quantity });
+
+// Battle
+
+export const findOpponent = () =>
+    apiClient.get<OpponentPreview>("/api/battle/findopponent");
+
+export const getDefenderVillage = (villageId: number) =>
+    apiClient.get<OpponentBuilding[]>(`/api/battle/village/${villageId}`);
+
+export const attack = (defenderId: number, deployment: DeploymentRequest[]) =>
+    apiClient.post<BattleResponse>("/api/battle/attack", {
+        defender_id: defenderId,
+        deployment,
+    });
