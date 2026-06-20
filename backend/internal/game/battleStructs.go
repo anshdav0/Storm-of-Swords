@@ -39,6 +39,7 @@ type SimBuilding struct {
 	DPS               int
 	Range             float64
 	SplashRad         float64
+	Destroyed         bool
 }
 
 type SimTroop struct {
@@ -50,6 +51,7 @@ type SimTroop struct {
 	CurrentHP  int
 	Damage     int
 	Speed      float64
+	Dead       bool
 }
 
 type BattleState struct {
