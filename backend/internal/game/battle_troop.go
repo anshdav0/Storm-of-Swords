@@ -59,3 +59,12 @@ func (t *SimTroop) Act(state *BattleState) []BattleEvent {
 
 	return events
 }
+
+func allTroopsDead(state *BattleState) bool {
+	for _, t := range state.Troops {
+		if !t.Dead {
+			return false
+		}
+	}
+	return true
+}
