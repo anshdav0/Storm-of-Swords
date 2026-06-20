@@ -4,11 +4,12 @@ import { useGameDataStore } from "./gamedata/gameDataStore";
 import { LoginPage } from "./pages/LoginPage";
 import { VillagePage } from "./pages/VillagePage";
 import { ArmyPage } from "./pages/ArmyPage";
+import { BattlePage } from "./pages/BattlePage";
 import "./App.css";
 
 export default function App() {
   const { isLoggedIn, clearAuth, username } = useAuthStore();
-  const [currentView, setCurrentView] = useState<"village" | "army">("village");
+  const [currentView, setCurrentView] = useState<"village" | "army" | "battle">("village");
   const gameDataLoaded = useGameDataStore((state) => state.loaded);
   const loadGameData = useGameDataStore((state) => state.load);
 
@@ -42,6 +43,12 @@ export default function App() {
           >
             Barracks & Army
           </button>
+          <button
+              className={`nav-btn ${currentView === "battle" ? "active" : ""}`}
+              onClick={() => setCurrentView("battle")}
+          >
+              Battle
+          </button>
         </nav>
 
         <div className="app-user">
@@ -57,6 +64,7 @@ export default function App() {
       <main className="app-main">
         {currentView === "village" && <VillagePage />}
         {currentView === "army" && <ArmyPage />}
+        {currentView === "battle" && <BattlePage />}
       </main>
     </div>
   );
