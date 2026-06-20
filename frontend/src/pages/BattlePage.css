@@ -1,0 +1,42 @@
+.battle-page {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.battle-search {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 60px;
+}
+
+.battle-search h2 {
+    color: #f59e0b;
+    font-size: 20px;
+}
+
+.battle-search-btn {
+    padding: 12px 32px;
+    background-color: #b91c1c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.battle-search-btn:hover:not(:disabled) {
+    background-color: #dc2626;
+}
+
+.battle-search-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
