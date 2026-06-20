@@ -26,7 +26,7 @@ type OpponentBuilding struct {
 }
 
 type BattleInput struct {
-	DefenderSnapshot   []OpponentBuilding `json:"opponent_building"`
+	DefenderSnapshot   []OpponentBuilding `json:"defender_snapshot"`
 	AttackerDeployment []DeployedTroop    `json:"attacker_deployment"`
 }
 
