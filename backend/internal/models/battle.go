@@ -143,7 +143,7 @@ func (bs *BattleStore) Attack(ctx context.Context, attackerID int64, defenderID 
 	Loot.Gold = -Loot.Gold
 	Loot.Iron = -Loot.Iron
 	Loot.Wildfire = -Loot.Wildfire
-	if paid, err := vs.Purchase(ctx, tx, attackerID, cost, nil); !paid || err != nil {
+	if paid, err := vs.Purchase(ctx, tx, attackerID, Loot, nil); !paid || err != nil {
 		return nil, fmt.Errorf("Attack add gold loot: %w", err)
 	}
 
