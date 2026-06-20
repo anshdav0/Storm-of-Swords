@@ -107,3 +107,77 @@ export interface TroopTemplate {
   damage: number;
   unlocks_at_building_level: number;
 }
+
+// Battle
+
+export interface OpponentPreview {
+    player_id: number
+    username:  string
+    trophies:  number
+}
+
+export interface OpponentBuilding {
+    village_building_id: number
+    building_name:       string
+    building_type:       string
+    x_cor:                number
+    y_cor:                number
+    size_x:               number
+    size_y:               number
+    current_hp:           number
+    damage_per_sec:       number
+    range:                number
+    splash_rad:           number
+}
+
+export interface DeployedTroop {
+    troop_id:   number
+    troop_type: string
+    quantity:   number
+    x:          number
+    y:          number
+    hp:         number
+    damage:     number
+    speed:      number
+}
+
+export interface BattleInput {
+    defender_snapshot:   OpponentBuilding[]
+    attacker_deployment: DeployedTroop[]
+}
+
+export type BattleEventType =
+    | "troop_moved"
+    | "troop_damaged"
+    | "troop_died"
+    | "building_damaged"
+    | "building_destroyed"
+
+export interface BattleEvent {
+    t:                    number
+    type:                 BattleEventType
+    troop_instance_id?:   number
+    to_x?:                number
+    to_y?:                number
+    village_building_id?: number
+    damage?:              number
+    hp_left?:             number
+}
+
+export interface BattleResponse {
+    battle_id:       number
+    stars_earned:    number
+    trophies_gained: number
+    gold_looted:     number
+    iron_looted:     number
+    wildfire_looted: number
+    events:          BattleEvent[]
+    replay_input:    BattleInput
+}
+
+export interface DeploymentRequest {
+    troop_id: number
+    quantity: number
+    x:        number
+    y:        number
+}
