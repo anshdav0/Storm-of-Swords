@@ -129,3 +129,21 @@ func computeResult(state *BattleState) BattleResult {
 		BuildingsDestroyed: destroyed,
 	}
 }
+
+func GiveFinalState(input BattleInput) *BattleState {
+	state := makeState(input)
+	const maxTicks = 600
+	for tick := 0; tick < maxTicks; tick++ {
+		state.CurrentTime = float64(tick) + 1.0
+		for i := range state.Buildings {
+			state.Buildings[i].Act(state)
+		}
+		for i := range state.Troops {
+			state.Troops[i].Act(state)
+		}
+		if allTroopsDead(state) || allBuildingDestroyed(state) {
+			break
+		}
+	}
+	return state
+}
