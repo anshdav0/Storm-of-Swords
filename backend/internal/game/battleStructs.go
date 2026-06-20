@@ -29,3 +29,52 @@ type BattleInput struct {
 	DefenderSnapshot   []OpponentBuilding `json:"opponent_building"`
 	AttackerDeployment []DeployedTroop    `json:"attacker_deployment"`
 }
+
+type SimBuilding struct {
+	VillageBuildingID int64
+	BuildingType      string
+	CenterX           float64
+	CentreY           float64
+	CurrentHP         int
+	DPS               int
+	Range             float64
+	SplashRad         float64
+}
+
+type SimTroop struct {
+	InstanceID int
+	TroopID    int64
+	TroopType  string
+	X          float64
+	Y          float64
+	CurrentHP  int
+	Damage     int
+	Speed      float64
+}
+
+type BattleState struct {
+	CurrentTime float64
+	Buildings   []SimBuilding
+	Troops      []SimTroop
+}
+
+type EventType string
+
+const (
+	EventTroopMoved        EventType = "troop_moved"
+	EventTroopDamaged      EventType = "troop_damaged"
+	EventTroopDied         EventType = "troop_died"
+	EventBuildingDamaged   EventType = "building_damaged"
+	EventBuildingDestroyed EventType = "building_destroyed"
+)
+
+type BattleEvent struct {
+	Time              float64   `json:"t"`
+	Type              EventType `json:"type"`
+	TroopInstanceID   int       `json:"troop_instance_id,omitempty"`
+	ToX               float64   `json:"to_x,omitempty"`
+	ToY               float64   `json:"to_y,omitempty"`
+	VillageBuildingID int64     `json:"village_building_id,omitempty"`
+	Damage            int       `json:"damage,omitempty"`
+	HPLefft           int       `json:"hp_left,omitempty"`
+}
