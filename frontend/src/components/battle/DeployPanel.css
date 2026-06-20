@@ -1,7 +1,9 @@
 .deploy-panel {
     display: flex;
-    gap: 20px;
+    flex-wrap:wrap;
+    gap: 30px;
     width: 100%;
+    justify-content:center;
 }
 
 .deploy-grid-side, .deploy-army-side {

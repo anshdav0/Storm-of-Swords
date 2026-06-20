@@ -12,7 +12,7 @@ const GRID_SIZE = 20;
 const TILE_PX = 24;
 // how many milliseconds of REAL TIME pass per SIMULATED second.
 // Lower this to speed up playback, raise it to slow down.
-const PLAYBACK_SPEED = 400;
+const PLAYBACK_SPEED = 1000;
 
 
 interface LiveTroop {
