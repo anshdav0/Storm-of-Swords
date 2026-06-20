@@ -34,7 +34,7 @@ type SimBuilding struct {
 	VillageBuildingID int64
 	BuildingType      string
 	CenterX           float64
-	CentreY           float64
+	CenterY           float64
 	CurrentHP         int
 	DPS               int
 	Range             float64
@@ -78,5 +78,5 @@ type BattleEvent struct {
 	ToY               float64   `json:"to_y,omitempty"`
 	VillageBuildingID int64     `json:"village_building_id,omitempty"`
 	Damage            int       `json:"damage,omitempty"`
-	HPLefft           int       `json:"hp_left,omitempty"`
+	HPLeft            int       `json:"hp_left,omitempty"`
 }
