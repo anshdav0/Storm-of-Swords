@@ -40,6 +40,7 @@ CREATE TABLE "battles" (
   "star_earned" INT NOT NULL DEFAULT 0,
   "gold_looted" INT NOT NULL DEFAULT 0,
   "iron_looted" INT NOT NULL DEFAULT 0,
+  "wildfire_looted" INT NOT NULL DEFAULT 0,
   "took_place" TIMESTAMPTZ NOT NULL DEFAULT (NOW()),
   "replay_data" JSONB
 );
