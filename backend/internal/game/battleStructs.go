@@ -80,3 +80,10 @@ type BattleEvent struct {
 	Damage            int       `json:"damage,omitempty"`
 	HPLeft            int       `json:"hp_left,omitempty"`
 }
+
+type BattleResult struct {
+	StarsEarned         int
+	TotalBuildings      int
+	BuildingsDestroyed  int
+	MainCastleDestroyed bool
+}
