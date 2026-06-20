@@ -15,10 +15,12 @@ func computeTrophies(attackerTrophies, defenderTrophies, starsEarned int) int {
 	return gained
 }
 
-func computeLoot(defGold, defIron, defWildfire, stars int) (gold, iron, wildfire int) {
+func computeLoot(defResources Cost, stars int) Cost {
 	pct := float64(stars) * 0.10
-	gold = int(float64(defGold) * pct)
-	iron = int(float64(defIron) * pct)
-	wildfire = int(float64(defWildfire) * pct)
-	return
+	var cost Cost
+	cost.Gold = int(float64(defResources.Gold) * pct)
+	cost.Iron = int(float64(defResources.Iron) * pct)
+	cost.Wildfire = int(float64(defResources.Wildfire) * pct)
+
+	return cost
 }
