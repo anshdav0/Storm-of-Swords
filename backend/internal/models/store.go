@@ -21,6 +21,10 @@ type TroopStore struct {
 	store *db.Store
 }
 
+type BattleStore struct {
+	store *db.Store
+}
+
 func NewPlayerStore(store *db.Store) *PlayerStore {
 	return &PlayerStore{store: store}
 }
@@ -35,4 +39,8 @@ func NewVillageStore(store *db.Store) *VillageStore {
 
 func NewTroopStore(store *db.Store) *TroopStore {
 	return &TroopStore{store: store}
+}
+
+func NewBattleStore(store *db.Store) *BattleStore {
+	return &BattleStore{store: store}
 }
