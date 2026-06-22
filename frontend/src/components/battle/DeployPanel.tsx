@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ArmyEntry, OpponentBuilding, DeploymentRequest } from "../../types";
+import { BuildingIcon } from "../shared/AssetIcon.tsx";
 import "./DeployPanel.css";
 
 // Props is the standard name for "what data this component needs
@@ -77,7 +78,11 @@ export function DeployPanel({
                                 backgroundColor: b.building_type === "defense" ? "#e74c3c" : "#3498db",
                             }}
                         >
-                            {b.building_name}
+                            <BuildingIcon
+                            buildingName={b.building_name}
+                            alt={b.building_name}
+                            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                        />
                         </div>
                     ))}
 

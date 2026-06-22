@@ -1,5 +1,6 @@
 // components/village/BuildingShop.tsx
 import { useGameDataStore } from "../../gamedata/gameDataStore";
+import { BuildingIcon } from "../shared/AssetIcon";
 import "./BuildingShop.css";
 
 interface Props {
@@ -38,15 +39,15 @@ export function BuildingShop({ onClose, onSelect }: Props) {
             return (
               <div key={entry.building_id} className="shop-card">
                 {/* Visual Placeholder Square Box Image */}
-                <div
+                <div 
                   className="shop-card-image-square"
-                  style={{
-                    backgroundColor: TYPE_COLORS[entry.type] ?? "#475569",
-                  }}
+                  style={{ backgroundColor: TYPE_COLORS[entry.type] ?? "#475569" }}
                 >
-                  <span className="text-xs uppercase font-bold opacity-60">
-                    {entry.type}
-                  </span>
+                  <BuildingIcon
+                    buildingName={entry.building_name}
+                    alt={entry.building_name}
+                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                  />
                 </div>
 
                 <div className="shop-card-info">

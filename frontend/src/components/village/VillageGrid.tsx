@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import type { VillageBuilding } from "../../types";
 import { BuildingPanel } from "./BuildingPanel";
+import { BuildingIcon } from "../shared/AssetIcon";
 import "./villageGrid.css";
 import "./BuildingPanel.css";
 
@@ -19,7 +20,7 @@ interface Props {
 }
 
 const GRID_SIZE = 20;
-const TILE_PX = 32;
+const TILE_PX = 44;
 
 const TYPE_COLORS: Record<string, string> = {
   defense: "#e74c3c",
@@ -146,7 +147,11 @@ export function VillageGrid({
               userSelect: "none",
             }}
           >
-            {building.building_name}
+            <BuildingIcon
+              buildingName={building.building_name}
+              alt={building.building_name}
+              style={{ width: "100%", height: "100%", objectFit: "contain", pointerEvents: "none" }}
+            />
 
             {/* panel appears anchored to this building */}
             {isSelected && !isEditMode && (
