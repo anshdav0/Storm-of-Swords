@@ -14,6 +14,7 @@ type BattleControl struct {
 	bts *models.BattleStore
 	ts  *models.TroopStore
 	vs  *models.VillageStore
+	bs  *models.BuildingStore
 }
 
 type attackRequest struct {
@@ -21,8 +22,8 @@ type attackRequest struct {
 	Deployment []models.DeploymentRequest `json:"deployment"`
 }
 
-func NewBattleController(bts *models.BattleStore, ts *models.TroopStore, vs *models.VillageStore) *BattleControl {
-	return &BattleControl{bts: bts, ts: ts, vs: vs}
+func NewBattleController(bts *models.BattleStore, ts *models.TroopStore, vs *models.VillageStore, bs *models.BuildingStore) *BattleControl {
+	return &BattleControl{bts: bts, ts: ts, vs: vs, bs: bs}
 }
 
 func (bc *BattleControl) FindOpponent(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +77,7 @@ func (bc *BattleControl) Attack(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := bc.bts.Attack(r.Context(), playerID, req.DefenderID, req.Deployment, bc.ts, bc.vs)
+	result, err := bc.bts.Attack(r.Context(), playerID, req.DefenderID, req.Deployment, bc.ts, bc.vs, bc.bs)
 	if err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return

@@ -40,7 +40,7 @@ func main() {
 	troopCtrl := controller.NewTroopController(troopStore, villageStore, buildingStore)
 	resourceCtrl := controller.NewResourceController(villageStore, buildingStore)
 	gameDataCtrl := controller.NewGameDataController(gameDataStore)
-	battleCtrl := controller.NewBattleController(battleStore, troopStore, villageStore)
+	battleCtrl := controller.NewBattleController(battleStore, troopStore, villageStore, buildingStore)
 
 	router := mux.NewRouter()
 

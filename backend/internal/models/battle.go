@@ -26,7 +26,7 @@ type BattleResponse struct {
 	ReplayInput    game.BattleInput   `json:"replay_input"`
 }
 
-func (bs *BattleStore) Attack(ctx context.Context, attackerID int64, defenderID int64, deployRequests []DeploymentRequest, ts *TroopStore, vs *VillageStore) (*BattleResponse, error) {
+func (bs *BattleStore) Attack(ctx context.Context, attackerID int64, defenderID int64, deployRequests []DeploymentRequest, ts *TroopStore, vs *VillageStore, bus *BuildingStore) (*BattleResponse, error) {
 
 	if attackerID == defenderID {
 		return nil, fmt.Errorf("cannot attack yourself")
@@ -143,7 +143,7 @@ func (bs *BattleStore) Attack(ctx context.Context, attackerID int64, defenderID 
 	Loot.Gold = -Loot.Gold
 	Loot.Iron = -Loot.Iron
 	Loot.Wildfire = -Loot.Wildfire
-	if paid, err := vs.Purchase(ctx, tx, attackerID, Loot, nil); !paid || err != nil {
+	if paid, err := vs.Purchase(ctx, tx, attackerID, Loot, bus); !paid || err != nil {
 		return nil, fmt.Errorf("Attack add gold loot: %w", err)
 	}
 
