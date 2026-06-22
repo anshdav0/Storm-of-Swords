@@ -7,13 +7,6 @@ export const BUILDING_COLORS: Record<string, number> = {
   producer: 0x2ecc71, // green
 };
 
-// export const RESOURCE_ICONS: Record<string, string> = {
-//   gold: "🪙",
-//   iron: "⚔️",
-//   wildfire: "🔥",
-//   none: "",
-// };
-
 export const GRID_SIZE = 20; // 20x20 tiles, matches your backend MapSize
 export const TILE_PIXELS = 32; // how many screen pixels per tile
 
@@ -49,15 +42,12 @@ export const TROOP_IMAGES: Record<number, string> = {
     16: "/assets/troops/outrider.png",
 };
 
-// Resource icons replace 🪙 ⚔️ 🔥 everywhere they appear as standalone icons.
 export const RESOURCE_ICONS: Record<string, string> = {
     gold:     "/assets/Icons/gold.png",
     iron:     "/assets/Icons/iron.png",
     wildfire: "/assets/Icons/wildfire.png",
 };
 
-// Action/UI icons replace the remaining scattered emojis
-// (⚔️ for attack, 🔨 for upgrade, 🛡️ for army, 🏆 for trophies, etc)
 export const UI_ICONS = {
     sword:   "/assets/icons/sword.png",
     hammer:  "/assets/icons/hammer.png",
@@ -65,7 +55,4 @@ export const UI_ICONS = {
     trophy:  "/assets/icons/crown.png",
 };
 
-// Fallback used if a building_id or troop_id has no image yet —
-// prevents a broken image icon from showing while you're still
-// gathering assets. Point this at any placeholder square PNG.
 export const FALLBACK_IMAGE = "/assets/buildings/placeholder.png";

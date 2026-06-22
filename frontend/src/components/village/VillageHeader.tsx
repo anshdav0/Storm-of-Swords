@@ -1,5 +1,3 @@
-
-
 interface Props {
   gold: number;
   iron: number;
