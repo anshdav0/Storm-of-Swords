@@ -18,6 +18,11 @@ cd Storm-of-Swords
 ```
 docker compose up --build
 ```
+or
+
+```
+make up
+```
 
 This builds and starts three containers — Postgres, the Go backend, and the React frontend. Migrations and seed data run automatically on startup, you don't need to do anything else.
 
@@ -38,11 +43,22 @@ To wipe the database and start fresh:
 ```
 docker compose down -v
 ```
+or
+
+```
+make clean
+```
 
 ### Running tests
 
 ```
 go test ./... -v
+```
+
+or
+
+```
+make test
 ```
 
 ## Tech stack

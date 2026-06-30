@@ -32,7 +32,7 @@ echo "Seeding game data..."
 # "ON CONFLICT ... DO NOTHING" everywhere, running this repeatedly
 # on every container restart is completely safe — it won't create
 # duplicate rows.
-psql "$DATABASE_URL" -f ./db/seeds/initial_game_data.sql
+psql "$DATABASE_URL" -f ./db/seeds/game_test_seed_data.sql
 
 echo "Starting server..."
 # "exec" replaces THIS script process with the server process

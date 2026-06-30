@@ -7,28 +7,13 @@ RUN npm install
 
 COPY . .
 
-# This runs your actual "npm run build" command — the same one
-# you'd run on your own laptop — but inside the container. It
-# produces a folder called "dist" containing plain HTML/CSS/JS
-# files, with no React, no TypeScript, no build tools needed to
-# actually run them.
 RUN npm run build
 
 
-# ============================================================
-# STAGE 2: Serve those static files with a tiny web server
-# ============================================================
-# nginx is a lightweight, extremely common web server. We don't
-# need Node.js at all to just SERVE already-built static files,
-# so this final image is much smaller than if we kept Node around.
 FROM nginx:alpine
 
-# Copies ONLY the built output from Stage 1 into nginx's default
-# folder for serving web files.
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copies a custom nginx configuration file (FILE 4 below) that
-# tells nginx how to forward API requests to your backend container.
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
