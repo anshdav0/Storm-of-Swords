@@ -53,7 +53,6 @@ func (bs *BuildingStore) UpgradeBuild(ctx context.Context, villageID int64, vill
 	if err = tx.Commit(ctx); err != nil {
 		return fmt.Errorf("UpgradeBuild commit: %w", err)
 	}
-	fmt.Printf("Recieved upgrade message for %v", buildingID)
 
 	return nil
 }

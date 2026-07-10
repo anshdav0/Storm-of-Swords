@@ -133,7 +133,6 @@ func (bs *BuildingStore) CheckforUpdates(ctx context.Context, villageID int64) e
 		ID           int64
 		CurrentLevel int
 	}
-	fmt.Printf("Been here")
 
 	var completed []CompletedUpgrade
 	for rows.Next() {
