@@ -169,3 +169,13 @@
   font-size: 12px;
   font-weight: bold;
 }
+
+.card-unaffordable {
+    opacity: 0.7;
+}
+
+.recruit-cost-label {
+    font-size: 11px;
+    text-align: center;
+    margin-bottom: 2px;
+}

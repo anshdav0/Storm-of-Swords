@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import type { VillageBuilding, ProducerBuilding } from "../../types";
+import { getVillage } from "../../api";
 import { useGameDataStore } from "../../gamedata/gameDataStore";
 import "./BuildingPanel.css";
 
@@ -59,6 +60,21 @@ export function BuildingPanel({
   const nextLevelData = staticData?.levels.find(
     (l) => l.level === building.level + 1,
   );
+  const { data: villageData } = useQuery({
+    queryKey: ["village"],
+    queryFn: () => getVillage().then((res) => res.data),
+  });
+  const gold = villageData?.village.gold ?? 0;
+  const iron = villageData?.village.iron ?? 0;
+
+// mirrors FindCostBuilding: defense costs gold, everything else iron
+  const canAffordUpgrade = (): boolean => {
+    if (!nextLevelData) return false;
+    if (building.type === "defense") return gold >= nextLevelData.upgrade_cost;
+    return iron >= nextLevelData.upgrade_cost;
+  };
+
+const affordable = canAffordUpgrade();
   const isMaxLevel = building.level >= 3;
   const isProducer = building.type === "producer";
   const producerBuilding = building as ProducerBuilding;
@@ -191,17 +207,34 @@ export function BuildingPanel({
             <span className="panel-countdown">{timeLeft}</span>
           </div>
         ) : !isMaxLevel && nextLevelData ? (
-          <button
-            className="panel-btn upgrade"
-            onClick={() => onUpgrade(building.id)}
-            disabled={isUpgrading}
-          >
-            {isUpgrading
-              ? "Upgrading..."
-              : `⬆️ Upgrade → Lv${building.level + 1}  (🪙/⚔️ ${nextLevelData.upgrade_cost})`}
-          </button>
-        ) : (
-          <div className="panel-maxlevel">✅ Max Level</div>
+          <>
+            <div
+              className="panel-upgrade-cost"
+              style={{ color: affordable ? "#94a3b8" : "#ef4444" }}
+            >
+              {building.type === "defense"
+                ? `🪙 ${nextLevelData.upgrade_cost}`
+                : `⚔️ ${nextLevelData.upgrade_cost}`}
+              {!affordable && ""}
+            </div>
+
+            <button
+              className="panel-btn upgrade"
+              onClick={() => onUpgrade(building.id)}
+              disabled={isUpgrading || !affordable}
+              style={
+                !affordable
+                  ? { backgroundColor: "#374151", color: "#6b7280", cursor: "not-allowed" }
+                  : {}
+              }
+            >
+              {isUpgrading
+                ? "Starting..."
+                : `⬆️ Upgrade → Lv${building.level + 1}`}
+            </button>
+          </>
+    ) : (
+        <div className="panel-maxlevel">✅ Max Level</div>
         )}
       </div>
     </div>

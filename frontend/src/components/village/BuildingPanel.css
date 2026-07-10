@@ -151,3 +151,9 @@
     font-weight: 900;
     font-variant-numeric: tabular-nums;
 }
+
+.panel-upgrade-cost {
+    font-size: 11px;
+    text-align: center;
+    margin-bottom: 2px;
+}

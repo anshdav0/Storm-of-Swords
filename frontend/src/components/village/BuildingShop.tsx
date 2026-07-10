@@ -1,5 +1,7 @@
 // components/village/BuildingShop.tsx
 import { useGameDataStore } from "../../gamedata/gameDataStore";
+import { useQuery } from "@tanstack/react-query";
+import { getVillage } from "../../api";
 import { BuildingIcon } from "../shared/AssetIcon";
 import "./BuildingShop.css";
 
@@ -20,14 +22,33 @@ export function BuildingShop({ onClose, onSelect }: Props) {
   // Exclude Main Castle (id=12)
   const purchasable = buildings.filter((b) => b.building_id !== 12);
 
+
+  const { data: villageData } = useQuery({
+        queryKey: ["village"],
+        queryFn: () => getVillage().then((res) => res.data),
+    });
+
+  const gold     = villageData?.village.gold     ?? 0;
+  const iron     = villageData?.village.iron     ?? 0;
+
+    // mirrors FindCostBuilding's rule exactly:
+    // defense buildings cost gold, everything else costs iron
+  const canAfford = (type: string, cost: number): boolean => {
+      if (type === "defense") return gold >= cost;
+      return iron >= cost;
+  };
+
+  const resourceLabel = (type: string, cost: number): string => {
+      if (type === "defense") return `🪙 ${cost}`;
+      return `⚔️ ${cost}`;
+  };
+
   return (
     <div className="shop-overlay" onClick={onClose}>
       <div className="shop-popup" onClick={(e) => e.stopPropagation()}>
         <div className="shop-header">
           <h2>Build Menu</h2>
-          <button className="shop-close" onClick={onClose}>
-            ×
-          </button>
+          <button className="shop-close" onClick={onClose}>×</button>
         </div>
 
         {/* Horizontal sliding item wrapper panel */}
@@ -35,6 +56,8 @@ export function BuildingShop({ onClose, onSelect }: Props) {
           {purchasable.map((entry) => {
             const level1 = entry.levels.find((l) => l.level === 1);
             if (!level1) return null;
+
+            const affordable = canAfford(entry.type, level1.upgrade_cost);
 
             return (
               <div key={entry.building_id} className="shop-card">
@@ -46,7 +69,9 @@ export function BuildingShop({ onClose, onSelect }: Props) {
                   <BuildingIcon
                     buildingName={entry.building_name}
                     alt={entry.building_name}
-                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                    style={{ width: "100%", height: "100%", objectFit: "contain",
+                      opacity: affordable ? 1 : 0.4,
+                     }}
                   />
                 </div>
 
@@ -61,18 +86,21 @@ export function BuildingShop({ onClose, onSelect }: Props) {
                       {entry.max_no_allowed}
                     </span>
                   </div>
-                  <div className="shop-card-cost">
-                    🪙/⚔️ {level1.upgrade_cost}
+                  <div className="shop-card-cost"
+                  style={{ color: affordable ? "#e2e8f0" : "#ef4444" }}>
+                    {resourceLabel(entry.type, level1.upgrade_cost)}
+                    {!affordable && (
+                      <span className="shop-card-cant-afford"></span>
+                    )}
                   </div>
                 </div>
 
                 <button
                   className="shop-card-buy-btn"
-                  onClick={() =>
-                    onSelect(entry.building_id, entry.size_x, entry.size_y)
-                  }
+                  disabled={!affordable}
+                  onClick={() => onSelect(entry.building_id, entry.size_x, entry.size_y)}
                 >
-                  Build
+                  {affordable ? "Build" : "Can't Afford"}
                 </button>
               </div>
             );
