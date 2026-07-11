@@ -31,15 +31,29 @@ export function BuildingShop({ onClose, onSelect }: Props) {
   const gold     = villageData?.village.gold     ?? 0;
   const iron     = villageData?.village.iron     ?? 0;
 
-    // mirrors FindCostBuilding's rule exactly:
-    // defense buildings cost gold, everything else costs iron
   const canAfford = (type: string, cost: number): boolean => {
-      if (type === "defense") return gold >= cost;
+      if (type === "defense") return gold >= cost && iron >= cost;
       return iron >= cost;
   };
 
+  const ownedCounts: Record<number, number> = {};
+  if (villageData) {
+    const allOwned = [
+      ...villageData.defense_building,
+      ...villageData.storage_building,
+      ...villageData.producer_building,
+    ];
+    for (const b of allOwned) {
+      ownedCounts[b.building_id] = (ownedCounts[b.building_id] ?? 0) + 1;
+    }
+  }
+
+  const atMaxCount = (buildingId: number, maxAllowed: number): boolean => {
+      return (ownedCounts[buildingId] ?? 0) >= maxAllowed;
+  };
+
   const resourceLabel = (type: string, cost: number): string => {
-      if (type === "defense") return `🪙 ${cost}`;
+      if (type === "defense") return `🪙 ${cost} ⚔️ ${cost}`;
       return `⚔️ ${cost}`;
   };
 
@@ -58,9 +72,12 @@ export function BuildingShop({ onClose, onSelect }: Props) {
             if (!level1) return null;
 
             const affordable = canAfford(entry.type, level1.upgrade_cost);
-
+            const maxedOut     = atMaxCount(entry.building_id, entry.max_no_allowed);
+            const canBuild     = affordable && !maxedOut;
+            const disableReason: string | null = maxedOut ? `Max ${entry.max_no_allowed} owned` : !affordable ? "Can't Afford" : null;
+            
             return (
-              <div key={entry.building_id} className="shop-card">
+              <div key={entry.building_id} className={`shop-card ${disableReason !== null ? "shop-card-disabled" : ""}`}>
                 {/* Visual Placeholder Square Box Image */}
                 <div 
                   className="shop-card-image-square"
@@ -81,26 +98,29 @@ export function BuildingShop({ onClose, onSelect }: Props) {
                     📏 Size: {entry.size_x}×{entry.size_y}
                   </div>
                   <div className="shop-card-limit">
-                    📋 Max Allowed:{" "}
-                    <span className="font-bold text-amber-500">
-                      {entry.max_no_allowed}
+                    📋 Owned:{" "}
+                    <span style={{
+                      color: maxedOut ? "#ef4444" : "#f59e0b",
+                      fontWeight: "bold"
+                    }}>
+                      {ownedCounts[entry.building_id] ?? 0} / {entry.max_no_allowed}
                     </span>
                   </div>
                   <div className="shop-card-cost"
-                  style={{ color: affordable ? "#e2e8f0" : "#ef4444" }}>
-                    {resourceLabel(entry.type, level1.upgrade_cost)}
-                    {!affordable && (
-                      <span className="shop-card-cant-afford"></span>
-                    )}
+                  style={{ color: affordable && !maxedOut ? "#e2e8f0" : "#ef4444" }}>
+                    {!maxedOut && resourceLabel(entry.type, level1.upgrade_cost)}
                   </div>
                 </div>
 
                 <button
                   className="shop-card-buy-btn"
-                  disabled={!affordable}
+                  disabled={!canBuild}
                   onClick={() => onSelect(entry.building_id, entry.size_x, entry.size_y)}
+                  style={
+                    !canBuild ? { backgroundColor: "#374151", color: "#6b7280", cursor: "not-allowed" } : {}
+                    }
                 >
-                  {affordable ? "Build" : "Can't Afford"}
+                  {disableReason ?? "Build"}
                 </button>
               </div>
             );

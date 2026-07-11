@@ -70,7 +70,7 @@ export function BuildingPanel({
 // mirrors FindCostBuilding: defense costs gold, everything else iron
   const canAffordUpgrade = (): boolean => {
     if (!nextLevelData) return false;
-    if (building.type === "defense") return gold >= nextLevelData.upgrade_cost;
+    if (building.type === "defense") return gold >= nextLevelData.upgrade_cost && iron >= nextLevelData.upgrade_cost;
     return iron >= nextLevelData.upgrade_cost;
   };
 
@@ -213,7 +213,7 @@ const affordable = canAffordUpgrade();
               style={{ color: affordable ? "#94a3b8" : "#ef4444" }}
             >
               {building.type === "defense"
-                ? `🪙 ${nextLevelData.upgrade_cost}`
+                ? `🪙 ${nextLevelData.upgrade_cost} ⚔️ ${nextLevelData.upgrade_cost}`
                 : `⚔️ ${nextLevelData.upgrade_cost}`}
               {!affordable && ""}
             </div>

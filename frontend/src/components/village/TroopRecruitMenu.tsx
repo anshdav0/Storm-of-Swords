@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { recruitTroop, getVillage } from "../../api";
+import { recruitTroop, getVillage, getArmy } from "../../api";
 import { useGameDataStore } from "../../gamedata/gameDataStore";
 import { TroopIcon } from "../shared/AssetIcon";
 import "./TroopRecruitMenu.css";
@@ -27,6 +27,23 @@ export function TroopRecruitMenu({ onClose, barracksLevel, armouryLevel}: Props)
   const gold     = villageData?.village.gold     ?? 0;
   const iron     = villageData?.village.iron     ?? 0;
   const wildfire = villageData?.village.wildfire ?? 0;
+
+  const { data: armyData } = useQuery({
+    queryKey: ["armyData"],
+    queryFn: getArmy,
+  });
+
+  // current total housing space used across all troops in the army
+  const currentUsage = (armyData?.data ?? []).reduce(
+      (sum: number, entry: any) => sum + entry.quantity * entry.troop.housing_space,
+      0
+  );
+
+  const totalCapacity = (villageData?.storage_building ?? [])
+      .filter((b: any) => b.building_id === 5)
+      .reduce((sum: number, b: any) => sum + b.capacity, 0);
+
+  const housingHeadroom = Math.max(0, totalCapacity - currentUsage);
 
   const recruitMutation = useMutation({
     mutationFn: ({ troopId, qty }: { troopId: number; qty: number }) =>
@@ -98,14 +115,17 @@ export function TroopRecruitMenu({ onClose, barracksLevel, armouryLevel}: Props)
             const isLocked = lockReason !== null;
             const isExpanded = expandedId === troop.troop_id;
             const qty = quantities[troop.troop_id] || 1;
-            const affordable = !isLocked && canAfford(
+            const housingNeeded = qty * troop.housing_space;
+            const hasSpace = housingNeeded <= housingHeadroom;
+            const affordable = !isLocked && hasSpace && canAfford(
               troop.cost_gold,
               troop.cost_iron,
               troop.cost_wildfire,
               qty
             );
 
-            const btnDisabled = isLocked || !affordable || recruitMutation.isPending;
+            const disableReason: string | null = isLocked ? lockReason : !hasSpace ? `No space (need ${housingNeeded}, have ${housingHeadroom})` : !canAfford(troop.cost_gold, troop.cost_iron, troop.cost_wildfire, qty) ? "Can't Afford" : null;
+            const btnDisabled = disableReason !== null || recruitMutation.isPending;
 
             return (
               <div
@@ -183,24 +203,35 @@ export function TroopRecruitMenu({ onClose, barracksLevel, armouryLevel}: Props)
                         />
                         <button onClick={() => handleQtyChange(troop.troop_id, qty + 1)}>+</button>
                       </div>
-                      <div
-                          className="recruit-cost-label"
-                          style={{ color: affordable ? "#94a3b8" : "#ef4444" }}
-                      >
-                          {costLabel(troop.cost_gold, troop.cost_iron, troop.cost_wildfire, qty)}
+                  
+                  {!isLocked && !hasSpace && (
+                      <div className="recruit-cost-label" style={{ color: "#ef4444" }}>
+                        🏕️ {currentUsage}/{totalCapacity} spaces used
                       </div>
-                      <button
-                        className="recruit-buy-btn"
-                        onClick={() => recruitMutation.mutate({ troopId: troop.troop_id, qty })}
-                        disabled={btnDisabled}
-                        style={
-                          !affordable
-                            ? { backgroundColor: "#374151", color: "#6b7280", cursor: "not-allowed" }
-                            : {}
-                        }
-                    >
-                      {!affordable ? "Can't Afford" : "Train"}
-                    </button>
+                  )}
+
+                  {/* show cost — red if unaffordable */}
+                  {!isLocked && hasSpace && (
+                      <div
+                        className="recruit-cost-label"
+                        style={{ color: affordable ? "#94a3b8" : "#ef4444" }}
+                      >
+                        {costLabel(troop.cost_gold, troop.cost_iron, troop.cost_wildfire, qty)}
+                      </div>
+                  )}
+
+                  <button
+                      className="recruit-buy-btn"
+                      onClick={() => recruitMutation.mutate({ troopId: troop.troop_id, qty })}
+                      disabled={btnDisabled}
+                      style={
+                        disableReason !== null
+                          ? { backgroundColor: "#374151", color: "#6b7280", cursor: "not-allowed" }
+                          : {}
+                      }
+                  >
+                      {disableReason ?? "Train"}
+                  </button>
                     </>
                   ) : (
                     <div className="lock-notice">{lockReason}</div>
