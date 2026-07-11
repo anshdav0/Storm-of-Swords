@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
@@ -40,8 +39,6 @@ type authenticatedresponse struct {
 }
 
 func (authctrl *AuthControl) Register(w http.ResponseWriter, r *http.Request) {
-	log.Println("Register handler hit")
-	//decode request and store as req
 	var req authenticationrequest
 
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -79,8 +76,6 @@ func (authctrl *AuthControl) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (authctrl *AuthControl) Login(w http.ResponseWriter, r *http.Request) {
-	log.Println("Login hit")
-	//decode request and store as req
 	var req authenticationrequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
@@ -91,18 +86,18 @@ func (authctrl *AuthControl) Login(w http.ResponseWriter, r *http.Request) {
 	//look for id
 	player, exists, err := authctrl.ps.FindUser(context.Background(), req.Username)
 	if err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		http.Error(w, "Invalid credentials", http.StatusBadRequest)
 		return
 	}
 
 	if !exists {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		http.Error(w, "Invalid credentials", http.StatusBadRequest)
 		return
 	}
 
 	//compare the passhash
 	if err := bcrypt.CompareHashAndPassword([]byte(player.PassHash), []byte(req.Password)); err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		http.Error(w, "Invalid credentials", http.StatusBadRequest)
 		return
 	}
 

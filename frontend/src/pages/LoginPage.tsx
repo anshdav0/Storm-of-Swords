@@ -18,9 +18,8 @@ export function LoginPage() {
       setAuth(token, player_id, authName);
     },
     onError: (err: any) => {
-      setErrorMessage(
-        err.response?.data?.error || "Invalid credentials. Try again.",
-      );
+      const errorText = err.response?.data || "Invalid credentials. Try again.";
+      setErrorMessage(errorText);
     },
   });
 
@@ -58,12 +57,7 @@ export function LoginPage() {
     <div className="login-wrapper">
       <div className="login-card">
         <h1 className="login-title">Storm of Swords</h1>
-        <p className="login-subtitle">
-          {isRegistering
-            ? "Claim your territory in Westeros"
-            : "Return to your stronghold"}
-        </p>
-
+        <p className="login-subtitle"> {isRegistering ? "Claim your territory in Westeros" : "Return to your stronghold"} </p>
         {errorMessage && <div className="login-error">{errorMessage}</div>}
 
         <form onSubmit={handleSubmit}>
@@ -94,11 +88,7 @@ export function LoginPage() {
             className="login-button"
             disabled={loginMutation.isPending || registerMutation.isPending}
           >
-            {loginMutation.isPending || registerMutation.isPending
-              ? "Processing..."
-              : isRegistering
-                ? "Create Account"
-                : "Enter Realm"}
+            {loginMutation.isPending || registerMutation.isPending ? "Processing..." : isRegistering ? "Create Account" : "Enter Realm"}
           </button>
         </form>
 
