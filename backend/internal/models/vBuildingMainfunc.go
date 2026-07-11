@@ -27,21 +27,23 @@ func (bs *BuildingStore) UpgradeBuild(ctx context.Context, villageID int64, vill
 	}
 
 	cost := Cost{}
-	cost, err = bs.FindCostBuilding(ctx, btype, buildingID, level)
-	if err != nil {
-		return fmt.Errorf("UpgradeBuild cost fetch: %w", err)
+	if level != 0 {
+		cost, err = bs.FindCostBuilding(ctx, btype, buildingID, level)
+		if err != nil {
+			return fmt.Errorf("UpgradeBuild cost fetch: %w", err)
+		}
 	}
-
 	tx, err := bs.store.Pool.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("UpgradeBuild begin tx: %w", err)
 	}
 	defer tx.Rollback(ctx)
 
-	if a, err := vs.Purchase(ctx, tx, villageID, cost, nil); !a {
-		return err
+	if level != 0 {
+		if a, err := vs.Purchase(ctx, tx, villageID, cost, nil); !a {
+			return err
+		}
 	}
-
 	_, err = tx.Exec(ctx, `
 		UPDATE village_building
 		SET upgrade_started = NOW()
@@ -173,14 +175,26 @@ func (bs *BuildingStore) AddBuilding(ctx context.Context, tx pgx.Tx, playerID in
 		return fmt.Errorf("failed to parse baseline time: %w", err)
 	}
 
-	insertQuery := `
-		INSERT INTO village_building (village_id, building_id, level, x_cor, y_cor, upgrade_started, current_hp, last_collected)
-		VALUES ($1, $2, 1, $3, $4, $7, $6, $5)
-		RETURNING id
-	`
-	err = tx.QueryRow(ctx, insertQuery, playerID, buildingID, XCor, YCor, time.Now().UTC(), Hp, baselineTime).Scan(&newVillageBuildingID)
-	if err != nil {
-		return fmt.Errorf("failed to insert new building row: %w", err)
+	if buildingID == 12 {
+		insertQuery := `
+			INSERT INTO village_building (village_id, building_id, level, x_cor, y_cor, upgrade_started, current_hp, last_collected)
+			VALUES ($1, $2, 1, $3, $4, $7, $6, $5)
+			RETURNING id
+		`
+		err = tx.QueryRow(ctx, insertQuery, playerID, buildingID, XCor, YCor, time.Now().UTC(), Hp, baselineTime).Scan(&newVillageBuildingID)
+		if err != nil {
+			return fmt.Errorf("failed to insert new building row: %w", err)
+		}
+	} else {
+		insertQuery := `
+			INSERT INTO village_building (village_id, building_id, level, x_cor, y_cor, upgrade_started, current_hp, last_collected)
+			VALUES ($1, $2, 0, $3, $4, $7, $6, $5)
+			RETURNING id
+		`
+		err = tx.QueryRow(ctx, insertQuery, playerID, buildingID, XCor, YCor, time.Now().UTC(), Hp, baselineTime).Scan(&newVillageBuildingID)
+		if err != nil {
+			return fmt.Errorf("failed to insert new building row: %w", err)
+		}
 	}
 
 	newPlacement := BuildPlacement{
@@ -198,6 +212,18 @@ func (bs *BuildingStore) AddBuilding(ctx context.Context, tx pgx.Tx, playerID in
 	if txlocal {
 		if err = tx.Commit(ctx); err != nil {
 			return fmt.Errorf("failed to commit: %w", err)
+		}
+	}
+	// if buildingID == 12 {
+	// 	if err = tx.Commit(ctx); err != nil {
+	// 		return fmt.Errorf("failed to commit: %w", err)
+	// 	}
+	// }
+
+	if buildingID != 12 {
+		err = bs.UpgradeBuild(ctx, playerID, newVillageBuildingID, vs)
+		if err != nil {
+			return fmt.Errorf("failed to add timer to the building: %w", err)
 		}
 	}
 	return nil
