@@ -41,6 +41,9 @@ export const addBuilding = (
 export const upgradeBuilding = (villageBuildingId: number) =>
   apiClient.post(`/api/village/buildings/${villageBuildingId}/upgrade`);
 
+export const instantUpgradeBuilding = (villageBuildingId: number) =>
+  apiClient.post(`/api/village/buildings/${villageBuildingId}/instantupgrade`);
+
 export const collectResources = (resourceType: "gold" | "iron" | "wildfire") =>
   apiClient.post<CollectResult>(`/api/village/collect/${resourceType}`);
 

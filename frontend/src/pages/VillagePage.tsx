@@ -70,6 +70,7 @@ export function VillagePage() {
           }
         }}
         onUpgrade={(id) => layout.upgradeMutation.mutate(id)}
+        onInstantUpgrade={(id) => layout.upgradeMutationInstant.mutate(id)}
         onCollect={(id) => layout.collectMutation.mutate(id)}
         onOpenRecruit={() => layout.setRecruitOpen(true)}
         onOpenArmy={() => layout.setArmyOpen(true)}

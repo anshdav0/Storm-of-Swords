@@ -12,6 +12,7 @@ interface Props {
   onLocalBuildingsChange: (updated: VillageBuilding[]) => void;
   onConfirmNewPlacement: (x: number, y: number) => void;
   onUpgrade: (id: number) => void;
+  onInstantUpgrade: (id: number) => void;
   onCollect: (id: number) => void;
   onOpenRecruit: () => void;
   onOpenArmy: () => void;
@@ -35,6 +36,7 @@ export function VillageGrid({
   onLocalBuildingsChange,
   onConfirmNewPlacement,
   onUpgrade,
+  onInstantUpgrade,
   onCollect,
   onOpenRecruit,
   onOpenArmy,
@@ -160,6 +162,10 @@ export function VillageGrid({
                 onClose={() => setSelectedBuilding(null)}
                 onUpgrade={(id) => {
                   onUpgrade(id);
+                  setSelectedBuilding(null);
+                }}
+                onInstantUpgrade={(id) => {
+                  onInstantUpgrade(id);
                   setSelectedBuilding(null);
                 }}
                 onCollect={(id) => {

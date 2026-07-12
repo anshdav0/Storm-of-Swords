@@ -6,6 +6,7 @@ import {
   saveLayout,
   upgradeBuilding,
   collectResources,
+  instantUpgradeBuilding,
 } from "../api";
 import type { VillageBuilding, BuildPlacement } from "../types";
 
@@ -69,6 +70,14 @@ export function useVillageLayout() {
       alert(`Upgrade Failed:\n${err.response?.data?.error || err.message}`),
   });
 
+  const upgradeMutationInstant = useMutation({
+    mutationFn: (villageBuildingId: number) =>
+      instantUpgradeBuilding(villageBuildingId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["village"] }),
+    onError: (err: any) =>
+      alert(`Upgrade Failed:\n${err.response?.data?.error || err.message}`),
+  });
+
   const collectMutation = useMutation({
     mutationFn: (villageBuildingId: number) => {
       // determine resource type from the building data
@@ -113,6 +122,7 @@ export function useVillageLayout() {
     saveLayoutMutation,
     buyBuildingMutation,
     upgradeMutation,
+    upgradeMutationInstant,
     collectMutation,
     compilePlacements,
   };

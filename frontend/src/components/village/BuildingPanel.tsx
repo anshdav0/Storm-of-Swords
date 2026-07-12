@@ -9,6 +9,7 @@ interface Props {
   building: VillageBuilding;
   onClose: () => void;
   onUpgrade: (id: number) => void;
+  onInstantUpgrade: (id: number) => void;
   onCollect: (id: number) => void;
   onOpenRecruit: () => void;
   onOpenArmy: () => void;
@@ -45,6 +46,7 @@ export function BuildingPanel({
   building,
   onClose,
   onUpgrade,
+  onInstantUpgrade,
   onCollect,
   onOpenRecruit,
   onOpenArmy,
@@ -231,6 +233,21 @@ const affordable = canAffordUpgrade();
               {isUpgrading
                 ? "Starting..."
                 : `⬆️ Upgrade → Lv${building.level + 1}`}
+            </button>
+
+            <button
+              className="panel-btn upgrade"
+              onClick={() => onInstantUpgrade(building.id)}
+              disabled={isUpgrading}
+              style={{
+                backgroundColor: isUpgrading ? "#374151" : "#d97706", // Amber color when clickable
+                color: isUpgrading ? "#6b7280" : "#ffffff", 
+                cursor: isUpgrading ? "not-allowed" : "pointer" 
+              }}
+            >
+              {isUpgrading
+                ? "Starting..."
+                : `⬆️ InstantUpgrade → Lv${building.level + 1}`}
             </button>
           </>
     ) : (
