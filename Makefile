@@ -21,3 +21,9 @@ logs:
 clean:
 	docker compose down -v
 	rm -rf ./bin ./tmp
+
+goserver:
+	go run backend/cmd/server/main.go
+
+front:
+	npm run dev
