@@ -33,11 +33,14 @@ export function TroopRecruitMenu({ onClose, barracksLevel, armouryLevel}: Props)
     queryFn: getArmy,
   });
 
-  // current total housing space used across all troops in the army
   const currentUsage = (armyData?.data ?? []).reduce(
-      (sum: number, entry: any) => sum + entry.quantity * entry.troop.housing_space,
-      0
-  );
+    (sum: number, entry: any) => {
+        const quantity = Number(entry?.quantity) || 0;
+        const housingSpace = Number(entry?.troop?.housing_space) || Number(entry?.troop?.housingSpace) || 0;
+        return sum + (quantity * housingSpace);
+    },
+    0
+);
 
   const totalCapacity = (villageData?.storage_building ?? [])
       .filter((b: any) => b.building_id === 5)
