@@ -230,3 +230,32 @@ func (vc *VillageControl) CheckLayoutCorrectness(ctx context.Context, playerID i
 
 	return count == len(arr)
 }
+
+func (vc *VillageControl) InstantUpgradeBuilding(w http.ResponseWriter, r *http.Request) {
+	playerID, ok := middleware.GetPlayerID(r)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	vars := mux.Vars(r)
+	villageBuildingID, err := strconv.ParseInt(vars["id"], 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid building id", http.StatusBadRequest)
+		return
+	}
+
+	ctx := context.Background()
+
+	if err := vc.bs.InstantUpgradeBuild(ctx, playerID, villageBuildingID, vc.vs); err != nil {
+		msg := err.Error()
+		if strings.Contains(msg, "already at max level") || strings.Contains(msg, "not enough") {
+			http.Error(w, msg, http.StatusBadRequest)
+			return
+		}
+		http.Error(w, "Failed to upgrade building", http.StatusInternalServerError)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]string{"message": "building upgraded"})
+}
