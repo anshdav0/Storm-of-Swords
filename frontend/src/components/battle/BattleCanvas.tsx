@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { BattleInput, BattleEvent } from "../../types";
+import { BuildingIcon } from "../shared/AssetIcon";
 import "./BattleCanvas.css";
 
 interface Props {
@@ -153,9 +154,18 @@ export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
                             width:           b.sizeX * TILE_PX,
                             height:          b.sizeY * TILE_PX,
                             backgroundColor: b.type === "defense" ? "#e74c3c" : "#3498db",
+                            position: "absolute",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center"
                         }}
                     >
-                        <div className="battle-building-name">{b.name}</div>
+                        <BuildingIcon
+                            buildingName={b.name}
+                            alt={b.name}
+                            style={{ width: "100%", height: "100%", objectFit: "contain", pointerEvents: "none" }}
+                        />
                         <div className="battle-hp-bar-bg">
                             <div
                                 className="battle-hp-bar-fill"
