@@ -1,8 +1,10 @@
 .battle-canvas-wrapper {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  overflow-x: auto;
+  padding: 20px;
 }
 
 .battle-time {
@@ -15,7 +17,11 @@
 .battle-canvas {
     position: relative;
     background-color: #0f172a;
-    border: 1px solid #334155;
+    background-image: 
+        linear-gradient(to right, #1e293b 1px, transparent 1px), 
+        linear-gradient(to bottom, #1e293b 1px, transparent 1px);
+    border: 2px solid #1e293b;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
 
 .battle-building {
@@ -52,11 +58,22 @@
 
 .battle-troop-dot {
     position: absolute;
-    width: 8px;
-    height: 8px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background-color: #f59e0b;
     transform: translate(-50%, -50%);
-    transition: left 0.35s linear, top 0.35s linear;
-    box-shadow: 0 0 4px rgba(245, 158, 11, 0.8);
+    transition: left 1s linear, top 1s linear;
+    border: 1px solid rgba(0,0,0,0.4);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    z-index: 20;
+}
+
+.troop-hp-bar {
+  width: 22px !important;
+  height: 3px !important;
+  position: absolute;
+  top: -8px; 
+  left: 50%;
+  transform: translateX(-50%);
 }

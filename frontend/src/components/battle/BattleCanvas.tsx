@@ -10,17 +10,20 @@ interface Props {
 }
 
 const GRID_SIZE = 20;
-const TILE_PX = 24;
+const TILE_PX = 44;
 // how many milliseconds of REAL TIME pass per SIMULATED second.
 // Lower this to speed up playback, raise it to slow down.
 const PLAYBACK_SPEED = 1000;
 
 
 interface LiveTroop {
-    id:   number;
-    x:    number;
-    y:    number;
-    dead: boolean;
+    id:    number;
+    x:     number;
+    y:     number;
+    hp:    number;
+    maxHp: number;
+    dead:  boolean;
+    color: string;
 }
 
 interface LiveBuilding {
@@ -34,6 +37,16 @@ interface LiveBuilding {
     hp:        number;
     maxHp:     number;
     destroyed: boolean;
+}
+
+function getTroopColor(troopName: string): string {
+    if (!troopName) return "#f59e0b"; // fallback amber
+    let hash = 0;
+    for (let i = 0; i < troopName.length; i++) {
+        hash = troopName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const hue = Math.abs(hash) % 360;
+    return `hsl(${hue}, 85%, 60%)`;
 }
 
 export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
@@ -58,8 +71,11 @@ export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
         let id = 0;
         
         for (const d of input.attacker_deployment) {
+            const startingHp = d.hp;
+            const uniqueColor = getTroopColor(d.troop_type);
+
             for (let i = 0; i < d.quantity; i++) {
-                list.push({ id: id++, x: d.x, y: d.y, dead: false });
+                list.push({id: id++, x: d.x, y: d.y, hp: startingHp, maxHp: startingHp, dead: false, color: uniqueColor});
             }
         }
         return list;
@@ -115,6 +131,15 @@ export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
                     )
                 );
                 break;
+            case "troop_damaged":
+                setTroops((prev) =>
+                    prev.map((t) =>
+                        t.id === e.troop_instance_id && e.hp_left !== undefined
+                            ? { ...t, hp: e.hp_left } 
+                            : t
+                    )
+                );
+                break;
             case "troop_died":
                 setTroops((prev) =>
                     prev.map((t) => (t.id === e.troop_instance_id ? { ...t, dead: true } : t))
@@ -142,7 +167,7 @@ export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
             <div className="battle-time">t = {currentTime}s</div>
             <div
                 className="battle-canvas"
-                style={{ width: GRID_SIZE * TILE_PX, height: GRID_SIZE * TILE_PX }}
+                style={{ width: GRID_SIZE * TILE_PX, height: GRID_SIZE * TILE_PX, backgroundSize: `${TILE_PX}px ${TILE_PX}px` }}
             >
                 {buildings.filter((b) => !b.destroyed).map((b) => (
                     <div
@@ -179,10 +204,25 @@ export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
                     <div
                         key={t.id}
                         className="battle-troop-dot"
-                        style={{ left: t.x * TILE_PX, top: t.y * TILE_PX }}
-                    />
+                        style={{ 
+                            left: t.x * TILE_PX + (TILE_PX / 2 - 6), 
+                            top: t.y * TILE_PX + (TILE_PX / 2 - 6),
+                            position: "absolute",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            backgroundColor: t.color 
+                        }}
+                >
+                    <div className="battle-hp-bar-bg troop-hp-bar">
+                        <div
+                            className="battle-hp-bar-fill"
+                            style={{ width: `${Math.max(0, (t.hp / t.maxHp) * 100)}%` }}
+                        />
+                    </div>
+                </div>
                 ))}
             </div>
         </div>
-    );
+);
 }
