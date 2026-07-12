@@ -61,12 +61,7 @@ export function VillagePage() {
         onLocalBuildingsChange={(updated) => layout.setDraftBuildings(updated)}
         onConfirmNewPlacement={(x, y) => {
           if (layout.placingBuilding) {
-            layout.buyBuildingMutation.mutate({
-              buildingId: layout.placingBuilding.buildingId,
-              x,
-              y,
-              placements: layout.compilePlacements(serverBuildings),
-            });
+            layout.buyBuildingMutation.mutate({buildingId: layout.placingBuilding.buildingId, x, y, placements: layout.compilePlacements(serverBuildings)});
           }
         }}
         onUpgrade={(id) => layout.upgradeMutation.mutate(id)}

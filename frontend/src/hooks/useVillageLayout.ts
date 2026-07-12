@@ -38,8 +38,14 @@ export function useVillageLayout() {
       setDraftBuildings(null);
       queryClient.invalidateQueries({ queryKey: ["village"] });
     },
-    onError: (err: any) =>
-      alert(`Layout Error:\n${err.response?.data?.error || err.message}`),
+    onError: (err: any) => {
+      console.warn("Invalid layout layout sent to server. Reverting to database backup...", err);
+      
+      setIsEditMode(false);
+      setDraftBuildings(null);
+      
+      queryClient.invalidateQueries({ queryKey: ["village"] });
+    },
   });
 
   const buyBuildingMutation = useMutation({
