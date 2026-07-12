@@ -127,7 +127,10 @@ const affordable = canAffordUpgrade();
     <div className="building-panel">
       <div className="panel-header">
         <span className="panel-title">{building.building_name}</span>
-        <button className="panel-close" onClick={onClose}>
+        <button className="panel-close" onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}>
           ×
         </button>
       </div>
