@@ -88,3 +88,6 @@ backend/
 The battle engine is fully deterministic — given the same starting conditions it always produces the same outcome, so only the initial deployment + village snapshot get stored per battle, not the full event log. The frontend replays a battle by re-running the same data it already received.
 
 Troops and buildings each run their own independent behavior each simulated tick (move toward nearest target, attack, retarget if destroyed) rather than a single function deciding the outcome.
+
+Some premade users are One, Beat, Bee, How, Indiana, Gum, Wow
+The password is same as username for all.
