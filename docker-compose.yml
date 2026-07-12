@@ -26,7 +26,7 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: "postgres://storm:storm_password@postgres:5432/storm?sslmode=disable"
-      JWT_SECRET: "change-this-to-something-random"
+      JWT_SECRET: "replace_this_with_a_long_random_string"
       DB_HOST: "postgres"
       DB_PORT: "5432"
       DB_USER: "storm"

@@ -80,22 +80,22 @@ ON CONFLICT ("id", "level") DO NOTHING;
 
 -- Base Catalog of Troops (Foot Variants)
 INSERT INTO "troop" ("id", "type", "speed", "housing_space", "cost_gold", "cost_iron", "cost_wildfire", "dismounted_form_id") VALUES
-(1, 'Unsullied Footman (Spear, Unarmored)',    14, 1, 60,  20,  0,  NULL),
-(2, 'Unsullied Veteran (Spear, Armored)',      12, 1, 80,  60,  0,  NULL),
-(3, 'Dothraki Foot-Screamer (Sword)',          18, 1, 50,  20,  0,  NULL),
-(5, 'Westerosi Man-at-Arms (Sword, Unarmored)',12, 1, 40,  15,  0,  NULL),
-(7, 'Westerosi Archer (Bow, Unarmored)',       12, 1, 45,  25,  0,  NULL),
-(8, 'Westerosi Marksman (Bow, Armored)',       10, 1, 65,  55,  0,  NULL),
-(9, 'Grand Pyromancer (Staff, Unarmored)',     10, 2, 90,  10,  40, NULL),
-(10, 'Battle Mage (Staff, Armored)',            8,  2, 110, 45,  50, NULL)
+(1, 'Unsullied Footman (Spear, Unarmored)',    2, 1, 60,  20,  0,  NULL),
+(2, 'Unsullied Veteran (Spear, Armored)',      2, 1, 80,  60,  0,  NULL),
+(3, 'Dothraki Foot-Screamer (Sword)',          2, 1, 50,  20,  0,  NULL),
+(5, 'Westerosi Man-at-Arms (Sword, Unarmored)',2, 1, 40,  15,  0,  NULL),
+(7, 'Westerosi Archer (Bow, Unarmored)',       2, 1, 45,  25,  0,  NULL),
+(8, 'Westerosi Marksman (Bow, Armored)',       1, 1, 65,  55,  0,  NULL),
+(9, 'Grand Pyromancer (Staff, Unarmored)',     2, 2, 90,  10,  40, NULL),
+(10, 'Battle Mage (Staff, Armored)',           1,  2, 110, 45,  50, NULL)
 ON CONFLICT ("id") DO NOTHING;
 
 -- Base Catalog of Troops (Mounted Variants linking to Dismounted Counterparts)
 INSERT INTO "troop" ("id", "type", "speed", "housing_space", "cost_gold", "cost_iron", "cost_wildfire", "dismounted_form_id") VALUES
-(11, 'Dothraki Vanguard (Sword, Mounted)',     24, 3, 100, 40,  0,  3), 
-(13, 'Westerosi Raider (Sword, Mounted)',      20, 3, 90,  35,  0,  5), 
-(14, 'Westerosi Cataphract (Sword, Mounted/Armored)', 16, 4, 140, 95,  0,  5), 
-(16, 'Westerosi Outrider (Staff, Mounted)',    18, 4, 150, 40,  60, 9)  
+(11, 'Dothraki Vanguard (Sword, Mounted)',     4, 3, 100, 40,  0,  3), 
+(13, 'Westerosi Raider (Sword, Mounted)',      4, 3, 90,  35,  0,  5), 
+(14, 'Westerosi Cataphract (Sword, Mounted/Armored)', 3, 4, 140, 95,  0,  5), 
+(16, 'Westerosi Outrider (Staff, Mounted)',    3, 4, 150, 40,  60, 9)  
 ON CONFLICT ("id") DO NOTHING;
 
 
