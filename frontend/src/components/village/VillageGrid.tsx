@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import type { VillageBuilding } from "../../types";
 import { BuildingPanel } from "./BuildingPanel";
 import { BuildingIcon } from "../shared/AssetIcon";
@@ -52,6 +52,22 @@ export function VillageGrid({
   const [selectedBuilding, setSelectedBuilding] =
     useState<VillageBuilding | null>(null);
 
+  const [readyToCollect, setReadyToCollect] = useState<Record<number, boolean>>({});
+
+  useEffect(() => {
+    const initialReadyStates: Record<number, boolean> = {};
+    buildings.forEach((b) => {
+      const nameLower = (b.building_name || "").toLowerCase();
+      const isArmyOrBarracks = 
+        nameLower.includes("arm") || nameLower.includes("barrack") || b.level == 0;
+
+      if (b.type === "producer" && !isArmyOrBarracks) {
+        initialReadyStates[b.id] = true;
+      }
+    });
+    setReadyToCollect(initialReadyStates);
+  }, []);
+
   const getTileCoords = (e: React.MouseEvent) => {
     if (!gridRef.current) return null;
     const rect = gridRef.current.getBoundingClientRect();
@@ -81,7 +97,6 @@ export function VillageGrid({
       setPreviewCoords(null);
       return;
     }
-    // click on blank grid area closes the panel
     setSelectedBuilding(null);
   };
 
@@ -89,9 +104,8 @@ export function VillageGrid({
     e: React.MouseEvent,
     building: VillageBuilding,
   ) => {
-    // in edit mode clicks are for dragging, not selecting
     if (isEditMode || placingBuilding) return;
-    e.stopPropagation(); // don't bubble to grid's handleGridClick
+    e.stopPropagation();
     setSelectedBuilding((prev) => (prev?.id === building.id ? null : building));
   };
 
@@ -116,6 +130,7 @@ export function VillageGrid({
         if (building.x_cor === null || building.y_cor === null) return null;
 
         const isSelected = selectedBuilding?.id === building.id;
+        const isProductionReady = readyToCollect[building.id] && !isEditMode;
 
         return (
           <div
@@ -133,10 +148,9 @@ export function VillageGrid({
               width: building.size_x * TILE_PX,
               height: building.size_y * TILE_PX,
               backgroundColor: TYPE_COLORS[building.type] ?? "#888",
-              border: isSelected
-                ? "2px solid #f59e0b"
-                : "1px solid rgba(0,0,0,0.3)",
-              boxShadow: isSelected ? "0 0 10px rgba(245,158,11,0.6)" : "none",
+              border: isSelected ? "2px solid #f59e0b" : isProductionReady ? "2px solid #2ecc71" : "1px solid rgba(0,0,0,0.3)",
+              boxShadow: isSelected  ? "0 0 10px rgba(245,158,11,0.6)" : isProductionReady ? "0 0 14px rgba(46, 204, 113, 0.7)" : "none",
+              zIndex: isSelected ? 50 : 1,
               color: "#fff",
               fontSize: "11px",
               fontWeight: "bold",
@@ -155,7 +169,27 @@ export function VillageGrid({
               style={{ width: "100%", height: "100%", objectFit: "contain", pointerEvents: "none" }}
             />
 
-            {/* panel appears anchored to this building */}
+            {isProductionReady && (
+              <div style={{
+                position: "absolute",
+                top: "-12px",
+                right: "-12px",
+                backgroundColor: "#2ecc71",
+                color: "white",
+                borderRadius: "50%",
+                width: "22px",
+                height: "22px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "12px",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.4)",
+                zIndex: 10
+              }}>
+                💰
+              </div>
+            )}
+ 
             {isSelected && !isEditMode && (
               <BuildingPanel
                 building={building}
@@ -169,8 +203,19 @@ export function VillageGrid({
                   setSelectedBuilding(null);
                 }}
                 onCollect={(id) => {
+                  setReadyToCollect((prev) => ({ ...prev, [id]: false }));
                   onCollect(id);
                   setSelectedBuilding(null);
+
+                  const nameLower = (building.building_name || "").toLowerCase();
+                  const isArmyOrBarracks = 
+                    nameLower.includes("arm") || nameLower.includes("barrack") || building.level == 0;
+
+                  if (!isArmyOrBarracks) {
+                    setTimeout(() => {
+                      setReadyToCollect((prev) => ({ ...prev, [id]: true }));
+                    }, 5000);
+                  }
                 }}
                 onOpenRecruit={() => {
                   onOpenRecruit();
@@ -188,7 +233,6 @@ export function VillageGrid({
         );
       })}
 
-      {/* ghost preview while placing a new building from shop */}
       {placingBuilding && previewCoords && (
         <div
           style={{
