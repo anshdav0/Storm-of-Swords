@@ -18,9 +18,7 @@ export function VillagePage() {
   ];
 
   const currentBuildings =
-    layout.isEditMode && layout.draftBuildings
-      ? layout.draftBuildings
-      : serverBuildings;
+    layout.isEditMode && layout.draftBuildings ? layout.draftBuildings : serverBuildings;
 
   const barracksLevel =
     layout.data.producer_building.find((b) => b.building_id === 3)?.level ?? 0;

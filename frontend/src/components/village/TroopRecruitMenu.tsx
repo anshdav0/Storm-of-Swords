@@ -228,9 +228,7 @@ export function TroopRecruitMenu({ onClose, barracksLevel, armouryLevel}: Props)
                       onClick={() => recruitMutation.mutate({ troopId: troop.troop_id, qty })}
                       disabled={btnDisabled}
                       style={
-                        disableReason !== null
-                          ? { backgroundColor: "#374151", color: "#6b7280", cursor: "not-allowed" }
-                          : {}
+                        disableReason !== null ? { backgroundColor: "#374151", color: "#6b7280", cursor: "not-allowed" } : {}
                       }
                   >
                       {disableReason ?? "Train"}

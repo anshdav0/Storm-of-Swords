@@ -71,7 +71,6 @@ export function BuildingPanel({
   const gold = villageData?.village.gold ?? 0;
   const iron = villageData?.village.iron ?? 0;
 
-// mirrors FindCostBuilding: defense costs gold, everything else iron
   const canAffordUpgrade = (): boolean => {
     if (!nextLevelData) return false;
     if (building.type === "defense") return gold >= nextLevelData.upgrade_cost && iron >= nextLevelData.upgrade_cost;
@@ -91,7 +90,6 @@ const affordable = canAffordUpgrade();
 
   const activelyUpgrading = isActiveUpgrade(building.upgrade_started);
 
-  // ── countdown state ──
   const [timeLeft, setTimeLeft] = useState("");
 
   useEffect(() => {
@@ -182,7 +180,7 @@ const affordable = canAffordUpgrade();
       )}
 
       <div className="panel-actions">
-        {/* COLLECT — only for resource-producing buildings */}
+        {/*only for resource-producing buildings */}
         {canCollect && !activelyUpgrading && (
           <button
             className="panel-btn collect"
@@ -193,14 +191,14 @@ const affordable = canAffordUpgrade();
           </button>
         )}
 
-        {/* TRAIN TROOPS — Barracks and Armoury */}
+        {/*Barracks and Armoury */}
         {isBarracksOrArmoury && !activelyUpgrading && (
           <button className="panel-btn recruit" onClick={onOpenRecruit}>
             ⚔️ Train Troops
           </button>
         )}
 
-        {/* VIEW ARMY — Army Camp */}
+        {/*Army Camp */}
         {isArmyCamp && !activelyUpgrading && (
           <button className="panel-btn army" onClick={onOpenArmy}>
             🛡️ View Army
@@ -219,10 +217,7 @@ const affordable = canAffordUpgrade();
               className="panel-upgrade-cost"
               style={{ color: affordable ? "#94a3b8" : "#ef4444" }}
             >
-              {building.type === "defense"
-                ? `🪙 ${nextLevelData.upgrade_cost} ⚔️ ${nextLevelData.upgrade_cost}`
-                : `⚔️ ${nextLevelData.upgrade_cost}`}
-              {!affordable && ""}
+              {building.type === "defense" ? `🪙 ${nextLevelData.upgrade_cost} ⚔️ ${nextLevelData.upgrade_cost}`: `⚔️ ${nextLevelData.upgrade_cost}`} {!affordable && ""}
             </div>
 
             <button
@@ -230,14 +225,10 @@ const affordable = canAffordUpgrade();
               onClick={() => onUpgrade(building.id)}
               disabled={isUpgrading || !affordable || isMaxUpgradesReached}
               style={
-                !affordable
-                  ? { backgroundColor: "#374151", color: "#6b7280", cursor: "not-allowed" }
-                  : {}
+                !affordable ? { backgroundColor: "#374151", color: "#6b7280", cursor: "not-allowed" } : {}
               }
             >
-              {isUpgrading
-                ? "Starting..."
-                : `⬆️ Upgrade → Lv${building.level + 1}`}
+              {isUpgrading ? "Starting..." : `⬆️ Upgrade → Lv${building.level + 1}`}
             </button>
 
             <button
@@ -250,9 +241,7 @@ const affordable = canAffordUpgrade();
                 cursor: isUpgrading ? "not-allowed" : "pointer" 
               }}
             >
-              {isUpgrading
-                ? "Starting..."
-                : `⬆️ InstantUpgrade → Lv${building.level + 1}`}
+              {isUpgrading ? "Starting..." : `⬆️ InstantUpgrade → Lv${building.level + 1}`}
             </button>
           </>
     ) : (
