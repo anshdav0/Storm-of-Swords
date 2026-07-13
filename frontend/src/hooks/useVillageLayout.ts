@@ -31,6 +31,21 @@ export function useVillageLayout() {
     queryFn: () => getVillage().then((res) => res.data),
   });
 
+  const totalBuildings = data ? [
+    ...(data.defense_building || []),
+    ...(data.storage_building || []),
+    ...(data.producer_building || [])
+  ] : [];
+
+  const activeUpgradeCount = totalBuildings.filter((b: any) => {
+    if (!b.upgrade_started) return false;
+    const upgradeTime = new Date(b.upgrade_started).getTime();
+    const baselineTime = new Date("2001-09-11T13:46:00Z").getTime();
+    return !isNaN(upgradeTime) && upgradeTime !== baselineTime;
+  }).length;
+
+  const isMaxUpgradesReached = activeUpgradeCount >= 5;
+
   const saveLayoutMutation = useMutation({
     mutationFn: saveLayout,
     onSuccess: () => {
@@ -69,8 +84,12 @@ export function useVillageLayout() {
   });
 
   const upgradeMutation = useMutation({
-    mutationFn: (villageBuildingId: number) =>
-      upgradeBuilding(villageBuildingId),
+    mutationFn: (villageBuildingId: number) => {
+      if (isMaxUpgradesReached) {
+        throw new Error("Maximum of 5 buildings can be upgraded at the same time!");
+      }
+      return upgradeBuilding(villageBuildingId);
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["village"] }),
     onError: (err: any) =>
       alert(`Upgrade Failed:\n${err.response?.data?.error || err.message}`),
@@ -129,6 +148,7 @@ export function useVillageLayout() {
     buyBuildingMutation,
     upgradeMutation,
     upgradeMutationInstant,
+    isMaxUpgradesReached,
     collectMutation,
     compilePlacements,
   };

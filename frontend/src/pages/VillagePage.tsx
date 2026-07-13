@@ -71,6 +71,7 @@ export function VillagePage() {
         onOpenArmy={() => layout.setArmyOpen(true)}
         isUpgrading={layout.upgradeMutation.isPending}
         isCollecting={layout.collectMutation.isPending}
+        isMaxUpgradesReached={layout.isMaxUpgradesReached}
       />
 
       {layout.shopOpen && (

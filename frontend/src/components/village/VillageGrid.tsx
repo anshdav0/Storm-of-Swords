@@ -18,6 +18,7 @@ interface Props {
   onOpenArmy: () => void;
   isUpgrading: boolean;
   isCollecting: boolean;
+  isMaxUpgradesReached: boolean;
 }
 
 const GRID_SIZE = 20;
@@ -42,6 +43,7 @@ export function VillageGrid({
   onOpenArmy,
   isUpgrading,
   isCollecting,
+  isMaxUpgradesReached,
 }: Props) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [activeDragId, setActiveDragId] = useState<number | null>(null);
@@ -227,6 +229,7 @@ export function VillageGrid({
                 }}
                 isUpgrading={isUpgrading}
                 isCollecting={isCollecting}
+                isMaxUpgradesReached={isMaxUpgradesReached}
               />
             )}
           </div>

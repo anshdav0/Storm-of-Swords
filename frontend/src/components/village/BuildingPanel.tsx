@@ -15,6 +15,7 @@ interface Props {
   onOpenArmy: () => void;
   isUpgrading: boolean;
   isCollecting: boolean;
+  isMaxUpgradesReached: boolean;
 }
 
 const BUILDING_IDS = {
@@ -52,6 +53,7 @@ export function BuildingPanel({
   onOpenArmy,
   isUpgrading,
   isCollecting,
+  isMaxUpgradesReached
 }: Props) {
   const queryClient = useQueryClient();
   const getBuilding = useGameDataStore((state) => state.getBuilding);
@@ -226,7 +228,7 @@ const affordable = canAffordUpgrade();
             <button
               className="panel-btn upgrade"
               onClick={() => onUpgrade(building.id)}
-              disabled={isUpgrading || !affordable}
+              disabled={isUpgrading || !affordable || isMaxUpgradesReached}
               style={
                 !affordable
                   ? { backgroundColor: "#374151", color: "#6b7280", cursor: "not-allowed" }

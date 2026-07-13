@@ -4,6 +4,25 @@ import { login, register } from "../api";
 import { useAuthStore } from "../store/authStore";
 import "./LoginPage.css";
 
+function validatePasswordStrength(password: string): { isValid: boolean; message: string | null } {
+  if (password.length < 8) {
+    return { isValid: false, message: "Password must be at least 8 characters long." };
+  }
+  if (!/[A-Z]/.test(password)) {
+    return { isValid: false, message: "Password must contain at least one uppercase letter." };
+  }
+  if (!/[a-z]/.test(password)) {
+    return { isValid: false, message: "Password must contain at least one lowercase letter." };
+  }
+  if (!/[0-9]/.test(password)) {
+    return { isValid: false, message: "Password must contain at least one number." };
+  }
+  if (!/[!@#$%^&*(),.?":{}|<>_]/.test(password)) {
+    return { isValid: false, message: "Password must contain at least one special character." };
+  }
+  return { isValid: true, message: null };
+}
+
 export function LoginPage() {
   const setAuth = useAuthStore((state) => state.setAuth);
   const [isRegistering, setIsRegistering] = useState(false);
@@ -47,6 +66,11 @@ export function LoginPage() {
     }
 
     if (isRegistering) {
+      const strength = validatePasswordStrength(password);
+      if (!strength.isValid) {
+        setErrorMessage(strength.message || "Weak password.");
+        return;
+      }
       registerMutation.mutate();
     } else {
       loginMutation.mutate();
