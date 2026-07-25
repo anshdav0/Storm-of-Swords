@@ -9,10 +9,10 @@ interface BuildingIconProps {
     className?: string;
 }
 
-// Looks up the right PNG by the building's NAME (not its numeric id),
-// because not every place in the app that needs to draw a building
-// has access to the numeric building_id — but building_name is
-// always present everywhere.
+/* Looks up the right PNG by the building's NAME (not its numeric id),
+because not every place in the app that needs to draw a building
+has access to the numeric building_id — but building_name is
+always present everywhere.*/
 export function BuildingIcon({ buildingName, alt, style, className }: BuildingIconProps) {
     const src = BUILDING_IMAGES[buildingName] ?? FALLBACK_IMAGE;
     return <img src={src} alt={alt} style={style} className={className} draggable={false} />;

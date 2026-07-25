@@ -87,7 +87,7 @@ export function DeployPanel({
                     {deployment.map((d) => (
                         <div
                             key={d.troop_id}
-                            className="deploy-marker"
+                            className="deploy-marker animate-walk"
                             style={{ 
                                 position: "absolute",
                                 left: d.x * TILE_PX, 

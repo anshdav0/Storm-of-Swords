@@ -25,6 +25,7 @@ interface LiveTroop {
     maxHp:    number;
     dead:     boolean;
     color:    string;
+    state: "idle" | "walking" | "attacking";
 }
 
 interface LiveBuilding {
@@ -76,7 +77,7 @@ export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
             const uniqueColor = getTroopColor(d.troop_type);
             const rawTroopId = (d as any).troop_id || (d as any).troop?.id || 1;
             for (let i = 0; i < d.quantity; i++) {
-                list.push({id: id++, troopId: rawTroopId, x: d.x, y: d.y, hp: startingHp, maxHp: startingHp, dead: false, color: uniqueColor});
+                list.push({id: id++, troopId: rawTroopId, x: d.x, y: d.y, hp: startingHp, maxHp: startingHp, dead: false, color: uniqueColor, state: "idle"});
             }
         }
         return list;
@@ -128,7 +129,7 @@ export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
             case "troop_moved":
                 setTroops((prev) =>
                     prev.map((t) =>
-                        t.id === e.troop_instance_id ? { ...t, x: e.to_x!, y: e.to_y! } : t
+                        t.id === e.troop_instance_id ? { ...t, x: e.to_x!, y: e.to_y!, state: "walking" } : t
                     )
                 );
                 break;
@@ -143,7 +144,7 @@ export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
                 break;
             case "troop_died":
                 setTroops((prev) =>
-                    prev.map((t) => (t.id === e.troop_instance_id ? { ...t, dead: true } : t))
+                    prev.map((t) => (t.id === e.troop_instance_id ? { ...t, dead: true, state : "idle" } : t))
                 );
                 break;
             case "building_damaged":
@@ -151,6 +152,9 @@ export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
                     prev.map((b) =>
                         b.id === e.village_building_id ? { ...b, hp: e.hp_left! } : b
                     )
+                );
+                setTroops((prev) =>
+                    prev.map((t) => (t.id === e.troop_instance_id ? { ...t, state: "attacking" } : t))
                 );
                 break;
             case "building_destroyed":
@@ -204,10 +208,10 @@ export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
                 {troops.filter((t) => !t.dead).map((t) => (
                     <div
                         key={t.id}
-                        className="battle-troop-dot"
+                        className={`battle-troop-dot ${(t as any).state === "walking" ? "animate-walk" : (t as any).state === "attacking" ? "animate-attack" : ""}`}
                         style={{ 
-                            left: t.x * TILE_PX + (TILE_PX / 2 - 6), 
-                            top: t.y * TILE_PX + (TILE_PX / 2 - 6),
+                            left: t.x * TILE_PX + (TILE_PX / 2), 
+                            top: t.y * TILE_PX + (TILE_PX / 2),
                             position: "absolute"
                         }}
                 >

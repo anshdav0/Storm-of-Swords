@@ -151,3 +151,36 @@
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+.animate-walk img {
+  animation: troopWaddle 0.35s infinite ease-in-out alternate;
+}
+
+@keyframes troopWaddle {
+  0% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  100% {
+    transform: translateY(-4px) rotate(3deg); /* Micro-jump and tilt */
+  }
+}
+
+/* ⚔️ Attacking: A quick, aggressive forward lunge and snap-back recoil */
+.animate-attack img {
+  animation: troopLunge 0.4s infinite ease-in-out;
+}
+
+@keyframes troopLunge {
+  0% {
+    transform: scale(1) translateX(0);
+  }
+  30% {
+    transform: scale(1.15) translateX(6px) rotate(8deg); /* The strike lunge */
+  }
+  70% {
+    transform: scale(0.95) translateX(-2px); /* The recoil pull-back */
+  }
+  100% {
+    transform: scale(1) translateX(0);
+  }
+}
