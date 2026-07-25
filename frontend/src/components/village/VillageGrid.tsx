@@ -134,10 +134,6 @@ export function VillageGrid({
         if (building.x_cor === null || building.y_cor === null) return null;
 
         const isThisBuildingUpgrading = isActiveUpgrade(building.upgrade_started);
-        const staticData = getBuilding(building.building_id);
-        const nextLevelData = staticData?.levels.find(
-          (l) => l.level === building.level + 1
-        );
         const isSelected = selectedBuilding?.id === building.id;
         const isProductionReady = readyToCollect[building.id] && !isEditMode;
 
