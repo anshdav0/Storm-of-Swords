@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { BattleInput, BattleEvent } from "../../types";
-import { BuildingIcon } from "../shared/AssetIcon";
+import { BuildingIcon, TroopIcon } from "../shared/AssetIcon";
 import "./BattleCanvas.css";
 
 interface Props {
@@ -17,13 +17,14 @@ const PLAYBACK_SPEED = 1000;
 
 
 interface LiveTroop {
-    id:    number;
-    x:     number;
-    y:     number;
-    hp:    number;
-    maxHp: number;
-    dead:  boolean;
-    color: string;
+    id:       number;
+    troopId:  number;
+    x:        number;
+    y:        number;
+    hp:       number;
+    maxHp:    number;
+    dead:     boolean;
+    color:    string;
 }
 
 interface LiveBuilding {
@@ -73,9 +74,9 @@ export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
         for (const d of input.attacker_deployment) {
             const startingHp = d.hp;
             const uniqueColor = getTroopColor(d.troop_type);
-
+            const rawTroopId = (d as any).troop_id || (d as any).troop?.id || 1;
             for (let i = 0; i < d.quantity; i++) {
-                list.push({id: id++, x: d.x, y: d.y, hp: startingHp, maxHp: startingHp, dead: false, color: uniqueColor});
+                list.push({id: id++, troopId: rawTroopId, x: d.x, y: d.y, hp: startingHp, maxHp: startingHp, dead: false, color: uniqueColor});
             }
         }
         return list;
@@ -207,11 +208,7 @@ export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
                         style={{ 
                             left: t.x * TILE_PX + (TILE_PX / 2 - 6), 
                             top: t.y * TILE_PX + (TILE_PX / 2 - 6),
-                            position: "absolute",
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            backgroundColor: t.color 
+                            position: "absolute"
                         }}
                 >
                     <div className="battle-hp-bar-bg troop-hp-bar">
@@ -220,6 +217,17 @@ export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
                             style={{ width: `${Math.max(0, (t.hp / t.maxHp) * 100)}%` }}
                         />
                     </div>
+
+                    <TroopIcon 
+                            troopId={t.troopId}
+                            alt=""
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "contain",
+                                filter: "drop-shadow(0px 3px 5px rgba(0,0,0,0.5))"
+                            }}
+                        />
                 </div>
                 ))}
             </div>

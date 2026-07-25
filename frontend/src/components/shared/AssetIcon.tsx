@@ -1,6 +1,6 @@
 // frontend/src/components/shared/AssetIcon.tsx
 
-import { BUILDING_IMAGES, TROOP_IMAGES, FALLBACK_IMAGE } from "../../constants/display";
+import { BUILDING_IMAGES, FALLBACK_IMAGE } from "../../constants/display";
 
 interface BuildingIconProps {
     buildingName: string;
@@ -26,6 +26,21 @@ interface TroopIconProps {
 }
 
 export function TroopIcon({ troopId, alt, style, className }: TroopIconProps) {
-    const src = TROOP_IMAGES[troopId] ?? FALLBACK_IMAGE;
-    return <img src={src} alt={alt} style={style} className={className} draggable={false} />;
+  
+  const safeId = Math.min(Math.max(Math.floor(Number(troopId) || 1), 1), 16);
+  
+  const src = `/assets/troops/${safeId}.png`;
+
+  return (
+    <img
+      src={src}
+      alt={alt || `Troop ${safeId}`}
+      className={className}
+      style={{
+        display: "block",
+        objectFit: "contain",
+        ...style,
+      }}
+    />
+  );
 }

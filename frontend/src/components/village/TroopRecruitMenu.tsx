@@ -141,21 +141,30 @@ export function TroopRecruitMenu({ onClose, barracksLevel, armouryLevel}: Props)
               >
                 <div
                   className="recruit-card-img"
-                  style={{ backgroundColor: "#1e293b" }}
+                  style={{ backgroundColor: "#1e293b", position: "relative" }}
                 >
-                  {isLocked ? (
-                      <span style={{ fontSize: "24px" }}>🔒</span>
-                  ) : (
-                      <TroopIcon
-                          troopId={troop.troop_id}
-                          alt={troop.type}
-                          style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "contain",
-                              opacity: affordable ? 1 : 0.5,
-                          }}
-                      />
+                  <TroopIcon
+                      troopId={troop.troop_id}
+                      alt={troop.type}
+                      style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                          opacity: isLocked ? 0.25 : affordable ? 1 : 0.5,
+                          filter: isLocked ? "grayscale(100%) blur(1px)" : "none",
+                      }}
+                  />
+                  {isLocked && (
+                    <span style={{ 
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      fontSize: "24px",
+                      zIndex: 2
+                    }}>
+                      🔒
+                    </span>
                   )}
                 </div>
 

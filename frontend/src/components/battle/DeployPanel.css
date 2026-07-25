@@ -37,11 +37,8 @@
 
 .deploy-marker {
     position: absolute;
-    width: 20px;
-    height: 20px;
-    background-color: #f59e0b;
-    border: 2px solid #fff;
-    border-radius: 50%;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;

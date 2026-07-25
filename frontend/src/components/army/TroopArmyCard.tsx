@@ -1,7 +1,8 @@
 // components/army/TroopArmyCard.tsx
 import { useState } from "react";
 import type { ArmyEntry } from "../../types";
-import "./TroopArmyCard.css"; // 🎯 Import the CSS styles directly
+import { TroopIcon } from "../shared/AssetIcon";
+import "./TroopArmyCard.css";
 
 interface Props {
   entry: ArmyEntry;
@@ -9,11 +10,7 @@ interface Props {
   onTrain: (id: number) => void;
 }
 
-const TROOP_COLORS: Record<string, string> = {
-  Dothraki: "#b45309",
-  Ironborn: "#0369a1",
-  Vanguard: "#475569",
-};
+
 
 export function TroopArmyCard({ entry, isTraining, onTrain }: Props) {
   const [showStats, setShowStats] = useState(false);
@@ -26,20 +23,17 @@ export function TroopArmyCard({ entry, isTraining, onTrain }: Props) {
 
   const { troop, quantity } = entry;
 
-  const matchColor = Object.keys(TROOP_COLORS).find((k) =>
-    troop.type?.includes(k),
-  );
-  const cardColor = matchColor ? TROOP_COLORS[matchColor] : "#334155";
-
+  
   return (
     <div className="army-card">
       {/* Left Column Content Elements Group */}
       <div className="army-card-left">
-        <div
-          className="army-card-graphic"
-          style={{ backgroundColor: cardColor }}
-        >
-          ⚔️
+        <div className="army-card-graphic">
+          <TroopIcon 
+            troopId={troop.id} 
+            alt={troop.type}
+            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+          />
         </div>
 
         <div className="army-card-meta">

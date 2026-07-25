@@ -58,22 +58,23 @@
 
 .battle-troop-dot {
     position: absolute;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: #f59e0b;
+    width: 72px;
+    height: 72px;
     transform: translate(-50%, -50%);
     transition: left 1s linear, top 1s linear;
-    border: 1px solid rgba(0,0,0,0.4);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .troop-hp-bar {
-  width: 22px !important;
+  width: 26px !important;
   height: 3px !important;
   position: absolute;
-  top: -8px; 
+  top: -6px; 
   left: 50%;
   transform: translateX(-50%);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }

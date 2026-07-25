@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ArmyEntry, OpponentBuilding, DeploymentRequest } from "../../types";
-import { BuildingIcon } from "../shared/AssetIcon.tsx";
+import { BuildingIcon, TroopIcon} from "../shared/AssetIcon.tsx";
 import "./DeployPanel.css";
 
 // Props is the standard name for "what data this component needs
@@ -34,8 +34,6 @@ export function DeployPanel({
     const [quantities, setQuantities] = useState<Record<number, number>>({});
 
     const handleQtyChange = (troopId: number, val: number, max: number) => {
-        // Math.max/Math.min together clamp the value so it can
-        // never go below 0 or above how many troops the player owns
         const clamped = Math.max(0, Math.min(max, val));
         setQuantities((prev) => ({ ...prev, [troopId]: clamped }));
     };
@@ -90,9 +88,37 @@ export function DeployPanel({
                         <div
                             key={d.troop_id}
                             className="deploy-marker"
-                            style={{ left: d.x * TILE_PX, top: d.y * TILE_PX }}
+                            style={{ 
+                                position: "absolute",
+                                left: d.x * TILE_PX, 
+                                top: d.y * TILE_PX,
+                                justifyContent: "center",                                
+                                transform: "translate(-6px, -6px)", 
+                                zIndex: 12,
+                                pointerEvents: "none"
+                            }}
                         >
-                            {d.quantity}
+                            <TroopIcon 
+                                troopId={d.troop_id} 
+                                alt={""}
+                                style={{ width: "100%", height: "100%", objectFit: "contain" }} 
+                            />
+                            {/* Small quantitative badge indicator over the troop icon */}
+                            <span style={{
+                                position: "absolute",
+                                bottom: "-4px",
+                                right: "-4px",
+                                backgroundColor: "rgba(15, 23, 42, 0.85)",
+                                color: "#fff",
+                                fontSize: "9px",
+                                padding: "1px 4px",
+                                borderRadius: "4px",
+                                fontWeight: "bold",
+                                border: "1px solid rgba(255,255,255,0.2)",
+                                pointerEvents: "none"
+                            }}>
+                                {d.quantity}
+                            </span>
                         </div>
                     ))}
                 </div>
@@ -114,13 +140,20 @@ export function DeployPanel({
                                 key={entry.troop.id}
                                 className={`deploy-troop-row ${isSelected ? "selected" : ""}`}
                                 onClick={() => setSelectedTroopId(entry.troop.id)}
+                                style={{ display: "flex", alignItems: "center", gap: "12px", padding: "8px" }}
                             >
+                                <div style={{ width: "48px", height: "48px", backgroundColor: "#1e293b", borderRadius: "6px", padding: "2px" }}>
+                                    <TroopIcon 
+                                        troopId={entry.troop.id} 
+                                        alt={""} 
+                                        style={{ width: "100%", height: "100%", objectFit: "contain"}}
+                                    />
+                                </div>
+
                                 <div className="deploy-troop-name">
                                     {entry.troop.type} <span className="deploy-troop-have">×{entry.quantity}</span>
                                 </div>
-                                {/* stopPropagation prevents clicking the +/- buttons
-                                    from ALSO triggering the row's onClick (which would
-                                    re-select the troop unnecessarily) */}
+                               
                                 <div className="deploy-troop-qty" onClick={(e) => e.stopPropagation()}>
                                     <button onClick={() => handleQtyChange(entry.troop.id, qty - 1, entry.quantity)}>−</button>
                                     <input
