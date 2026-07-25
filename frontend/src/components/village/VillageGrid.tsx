@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import type { VillageBuilding } from "../../types";
 import { BuildingPanel, isActiveUpgrade} from "./BuildingPanel";
 import { BuildingIcon } from "../shared/AssetIcon";
-import { useGameDataStore } from "../../gamedata/gameDataStore";
 import "./villageGrid.css";
 import "./BuildingPanel.css";
 
