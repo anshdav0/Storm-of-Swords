@@ -47,7 +47,6 @@ export function VillageGrid({
   isMaxUpgradesReached,
 }: Props) {
   const gridRef = useRef<HTMLDivElement>(null);
-  const getBuilding = useGameDataStore((state) => state.getBuilding);
   const [activeDragId, setActiveDragId] = useState<number | null>(null);
   const [previewCoords, setPreviewCoords] = useState<{
     x: number;
