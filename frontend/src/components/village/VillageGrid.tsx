@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import type { VillageBuilding } from "../../types";
-import { BuildingPanel } from "./BuildingPanel";
+import { BuildingPanel, isActiveUpgrade} from "./BuildingPanel";
 import { BuildingIcon } from "../shared/AssetIcon";
+import { useGameDataStore } from "../../gamedata/gameDataStore";
 import "./villageGrid.css";
 import "./BuildingPanel.css";
 
@@ -46,6 +47,7 @@ export function VillageGrid({
   isMaxUpgradesReached,
 }: Props) {
   const gridRef = useRef<HTMLDivElement>(null);
+  const getBuilding = useGameDataStore((state) => state.getBuilding);
   const [activeDragId, setActiveDragId] = useState<number | null>(null);
   const [previewCoords, setPreviewCoords] = useState<{
     x: number;
@@ -131,6 +133,11 @@ export function VillageGrid({
       {buildings.map((building) => {
         if (building.x_cor === null || building.y_cor === null) return null;
 
+        const isThisBuildingUpgrading = isActiveUpgrade(building.upgrade_started);
+        const staticData = getBuilding(building.building_id);
+        const nextLevelData = staticData?.levels.find(
+          (l) => l.level === building.level + 1
+        );
         const isSelected = selectedBuilding?.id === building.id;
         const isProductionReady = readyToCollect[building.id] && !isEditMode;
 
@@ -168,7 +175,7 @@ export function VillageGrid({
             <BuildingIcon
               buildingName={building.building_name}
               alt={building.building_name}
-              style={{ width: "100%", height: "100%", objectFit: "contain", pointerEvents: "none" }}
+              style={{ width: "100%", height: "100%", objectFit: "contain", pointerEvents: "none",opacity: isThisBuildingUpgrading ? 0.4 : 1, filter: isThisBuildingUpgrading ? "blur(1.5px)" : "none", transition: "opacity 0.3s ease, filter 0.3s ease"}}
             />
 
             {isProductionReady && (

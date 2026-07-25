@@ -27,7 +27,7 @@ const BUILDING_IDS = {
 //if you missed the joke in backend here it is in the frontend
 const SENTINEL_CUTOFF = new Date("2002-01-01T00:00:00Z").getTime();
 
-function isActiveUpgrade(upgradeStarted: string | null): boolean {
+export function isActiveUpgrade(upgradeStarted: string | null): boolean {
     if (!upgradeStarted) return false;
     return new Date(upgradeStarted).getTime() > SENTINEL_CUTOFF;
 }
