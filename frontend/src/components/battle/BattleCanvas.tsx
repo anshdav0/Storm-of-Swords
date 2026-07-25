@@ -125,18 +125,19 @@ export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
 
     
     const applyEvent = (e: BattleEvent) => {
+        const targetId = (e.troop_instance_id === undefined || e.troop_instance_id === null) ? 0 : e.troop_instance_id;
         switch (e.type) {
             case "troop_moved":
                 setTroops((prev) =>
                     prev.map((t) =>
-                        t.id === e.troop_instance_id ? { ...t, x: e.to_x!, y: e.to_y!, state: "walking" } : t
+                        t.id === targetId ? { ...t, x: e.to_x!, y: e.to_y!, state: "walking" } : t
                     )
                 );
                 break;
             case "troop_damaged":
                 setTroops((prev) =>
                     prev.map((t) =>
-                        t.id === e.troop_instance_id && e.hp_left !== undefined
+                        t.id === targetId && e.hp_left !== undefined
                             ? { ...t, hp: e.hp_left } 
                             : t
                     )
@@ -144,7 +145,7 @@ export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
                 break;
             case "troop_died":
                 setTroops((prev) =>
-                    prev.map((t) => (t.id === e.troop_instance_id ? { ...t, dead: true, state : "idle" } : t))
+                    prev.map((t) => (t.id === targetId ? { ...t, dead: true, state : "idle" } : t))
                 );
                 break;
             case "building_damaged":
@@ -154,7 +155,7 @@ export function BattleCanvas({ input, events, onAnimationComplete }: Props) {
                     )
                 );
                 setTroops((prev) =>
-                    prev.map((t) => (t.id === e.troop_instance_id ? { ...t, state: "attacking" } : t))
+                    prev.map((t) => (t.id === targetId ? { ...t, state: "attacking" } : t))
                 );
                 break;
             case "building_destroyed":
