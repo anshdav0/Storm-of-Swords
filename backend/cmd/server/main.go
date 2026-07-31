@@ -12,6 +12,7 @@ import (
 	"github.com/anshdav0/Storm-of-Swords.git/backend/internal/db"
 	"github.com/anshdav0/Storm-of-Swords.git/backend/internal/middleware"
 	"github.com/anshdav0/Storm-of-Swords.git/backend/internal/models"
+	"github.com/anshdav0/Storm-of-Swords.git/backend/internal/ws"
 )
 
 func main() {
@@ -34,6 +35,7 @@ func main() {
 	troopStore := models.NewTroopStore(store)
 	gameDataStore := models.NewGameDataStore(store)
 	battleStore := models.NewBattleStore(store)
+	battleWS := ws.NewBattleHandler(battleStore, troopStore, villageStore, buildingStore)
 
 	authCtrl := controller.NewAuthController(playerStore, villageStore, buildingStore, cfg.JWTSecret)
 	villageCtrl := controller.NewVillageController(villageStore, buildingStore)
@@ -67,7 +69,8 @@ func main() {
 	protected.HandleFunc("/api/army/recruit", troopCtrl.RecruitTroop).Methods("POST")
 	protected.HandleFunc("/api/battle/findopponent", battleCtrl.FindOpponent).Methods("GET")
 	protected.HandleFunc("/api/battle/village/{village_id}", battleCtrl.GetDefenderVillage).Methods("GET")
-	protected.HandleFunc("/api/battle/attack", battleCtrl.Attack).Methods("POST")
+	//protected.HandleFunc("/api/battle/attack", battleCtrl.Attack).Methods("POST")
+	protected.HandleFunc("/ws/battle", battleWS.ServeWS)
 
 	serverAddr := fmt.Sprintf(":%s", cfg.Go_Port)
 	log.Printf("Server is running! Listening on %s\n", serverAddr)

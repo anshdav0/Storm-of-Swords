@@ -38,11 +38,11 @@ func (t *SimTroop) findNearestBuilding(state *BattleState) *SimBuilding {
 	return nearest
 }
 
-func StartBattle(input BattleInput) ([]BattleEvent, BattleResult) {
-	state := makeState(input)
+func StartBattle(input BattleInput) ([]BattleEvent, BattleResult, *BattleState) {
+	state := MakeState(input)
 	var allEvents []BattleEvent
 
-	const battleTimeLimit = 600
+	const battleTimeLimit = 180
 
 	for tick := 0; tick < battleTimeLimit; tick++ {
 		state.CurrentTime = float64(tick) + 1.0
@@ -57,16 +57,16 @@ func StartBattle(input BattleInput) ([]BattleEvent, BattleResult) {
 			allEvents = append(allEvents, events...)
 		}
 
-		if allTroopsDead(state) || allBuildingDestroyed(state) {
+		if AllTroopsDead(state) || AllBuildingDestroyed(state) {
 			break
 		}
 	}
 
-	result := computeResult(state)
-	return allEvents, result
+	result := ComputeResult(state, input.DefenderSnapshot)
+	return allEvents, result, state
 }
 
-func makeState(input BattleInput) *BattleState {
+func MakeState(input BattleInput) *BattleState {
 	state := &BattleState{}
 
 	for _, sb := range input.DefenderSnapshot {
@@ -97,6 +97,24 @@ func makeState(input BattleInput) *BattleState {
 				Speed:      dt.Speed,
 				Dead:       false,
 			})
+			troop := SimTroop{
+				InstanceID: instanceID,
+				TroopID:    dt.TroopID,
+				TroopType:  dt.TroopType,
+				X:          float64(dt.X),
+				Y:          float64(dt.Y),
+				CurrentHP:  dt.HP,
+				Damage:     dt.Damage,
+				Speed:      dt.Speed,
+				Dead:       false,
+			}
+
+			if dt.DeployedAt <= 0 {
+				state.Troops = append(state.Troops, troop)
+			} else {
+				state.PendingTroops = append(state.PendingTroops, troop)
+				state.DeployTimes = append(state.DeployTimes, dt.DeployedAt)
+			}
 			instanceID++
 		}
 	}
@@ -104,18 +122,25 @@ func makeState(input BattleInput) *BattleState {
 	return state
 }
 
-func computeResult(state *BattleState) BattleResult {
+func ComputeResult(state *BattleState, snapshot []OpponentBuilding) BattleResult {
 	total := len(state.Buildings)
 	destroyed := 0
-	//mainCastleDestroyed := false
+	mainCastleDestroyed := false
+	mainCastleID := findMainCastleID(snapshot)
 
 	for _, b := range state.Buildings {
 		if b.Destroyed {
 			destroyed++
+			if b.VillageBuildingID == mainCastleID {
+				mainCastleDestroyed = true
+			}
 		}
 	}
 
 	stars := 0
+	if mainCastleDestroyed {
+		stars++
+	}
 	if total > 0 && float64(destroyed)/float64(total) >= 0.5 {
 		stars++
 	}
@@ -124,15 +149,25 @@ func computeResult(state *BattleState) BattleResult {
 	}
 
 	return BattleResult{
-		StarsEarned:        stars,
-		TotalBuildings:     total,
-		BuildingsDestroyed: destroyed,
+		StarsEarned:         stars,
+		TotalBuildings:      total,
+		BuildingsDestroyed:  destroyed,
+		MainCastleDestroyed: mainCastleDestroyed,
 	}
 }
 
+func findMainCastleID(snapshot []OpponentBuilding) int64 {
+	for _, b := range snapshot {
+		if b.SizeX == 4 && b.SizeY == 4 && b.BuildingName == "Main Castle" {
+			return b.VillageBuildingID
+		}
+	}
+	return -1
+}
+
 func GiveFinalState(input BattleInput) *BattleState {
-	state := makeState(input)
-	const maxTicks = 600
+	state := MakeState(input)
+	const maxTicks = 180
 	for tick := 0; tick < maxTicks; tick++ {
 		state.CurrentTime = float64(tick) + 1.0
 		for i := range state.Buildings {
@@ -141,9 +176,93 @@ func GiveFinalState(input BattleInput) *BattleState {
 		for i := range state.Troops {
 			state.Troops[i].Act(state)
 		}
-		if allTroopsDead(state) || allBuildingDestroyed(state) {
+		if AllTroopsDead(state) || AllBuildingDestroyed(state) {
 			break
 		}
 	}
 	return state
+}
+
+func (state *BattleState) AddPendingTroops(troops []DeployedTroop, nextInstanceID *int) []BattleEvent {
+	var events []BattleEvent
+
+	for _, dt := range troops {
+		for i := 0; i < dt.Quantity; i++ {
+			troop := SimTroop{
+				InstanceID: *nextInstanceID,
+				TroopID:    dt.TroopID,
+				TroopType:  dt.TroopType,
+				X:          float64(dt.X),
+				Y:          float64(dt.Y),
+				CurrentHP:  dt.HP,
+				Damage:     dt.Damage,
+				Speed:      dt.Speed,
+				Dead:       false,
+			}
+			// deploy at exactly the current time — spawns next tick
+			state.PendingTroops = append(state.PendingTroops, troop)
+			state.DeployTimes = append(state.DeployTimes, state.CurrentTime)
+			*nextInstanceID++
+
+			events = append(events, BattleEvent{
+				Time:            state.CurrentTime,
+				Type:            EventTroopDeployed,
+				TroopInstanceID: troop.InstanceID,
+				ToX:             float64(dt.X),
+				ToY:             float64(dt.Y),
+			})
+		}
+	}
+
+	return events
+}
+
+func (state *BattleState) SpawnPendingTroops() []BattleEvent {
+	var events []BattleEvent
+	var remainingPending []SimTroop
+	var remainingTimes []float64
+
+	for i, t := range state.PendingTroops {
+		if state.DeployTimes[i] <= state.CurrentTime {
+			state.Troops = append(state.Troops, t)
+			events = append(events, BattleEvent{
+				Time:            state.CurrentTime,
+				Type:            EventTroopDeployed,
+				TroopInstanceID: t.InstanceID,
+				ToX:             t.X,
+				ToY:             t.Y,
+			})
+		} else {
+			remainingPending = append(remainingPending, t)
+			remainingTimes = append(remainingTimes, state.DeployTimes[i])
+		}
+	}
+
+	state.PendingTroops = remainingPending
+	state.DeployTimes = remainingTimes
+	return events
+}
+
+func Tick(state *BattleState) []BattleEvent {
+	state.CurrentTime += TICK_DURATION
+	var events []BattleEvent
+
+	// spawn any troops whose time has come
+	events = append(events, state.SpawnPendingTroops()...)
+
+	// defenses fire first
+	for i := range state.Buildings {
+		events = append(events, state.Buildings[i].Act(state)...)
+	}
+
+	// troops act after taking defensive fire
+	for i := range state.Troops {
+		events = append(events, state.Troops[i].Act(state)...)
+	}
+
+	return events
+}
+
+func (state *BattleState) TotalTroopCount() int {
+	return len(state.Troops) + len(state.PendingTroops)
 }

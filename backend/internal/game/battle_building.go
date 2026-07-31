@@ -1,5 +1,7 @@
 package game
 
+import "math"
+
 func (b *SimBuilding) Act(state *BattleState) []BattleEvent {
 	if b.Destroyed || b.DPS == 0 {
 		return nil
@@ -20,27 +22,32 @@ func (b *SimBuilding) Act(state *BattleState) []BattleEvent {
 		return nil
 	}
 
+	tickDamage := int(math.Round(float64(b.DPS) * TICK_DURATION))
+	if tickDamage < 1 {
+		tickDamage = 1
+	}
+
 	var events []BattleEvent
 
 	if b.SplashRad > 0 {
 		nearest := nearestTroopTo(b.CenterX, b.CenterY, inRange)
 		for _, t := range inRange {
 			if distance(nearest.X, nearest.Y, t.X, t.Y) <= b.SplashRad {
-				events = append(events, b.dealDamageToTroop(t, state.CurrentTime)...)
+				events = append(events, b.dealDamageToTroop(t, tickDamage, state.CurrentTime)...)
 			}
 		}
 	} else {
 		nearest := nearestTroopTo(b.CenterX, b.CenterY, inRange)
-		events = append(events, b.dealDamageToTroop(nearest, state.CurrentTime)...)
+		events = append(events, b.dealDamageToTroop(nearest, tickDamage, state.CurrentTime)...)
 	}
 
 	return events
 }
 
-func (b *SimBuilding) dealDamageToTroop(t *SimTroop, currentTime float64) []BattleEvent {
+func (b *SimBuilding) dealDamageToTroop(t *SimTroop, dmg int, currentTime float64) []BattleEvent {
 	var events []BattleEvent
 
-	t.CurrentHP -= b.DPS
+	t.CurrentHP -= dmg
 	if t.CurrentHP < 0 {
 		t.CurrentHP = 0
 	}
@@ -49,7 +56,7 @@ func (b *SimBuilding) dealDamageToTroop(t *SimTroop, currentTime float64) []Batt
 		Time:            currentTime,
 		Type:            EventTroopDamaged,
 		TroopInstanceID: t.InstanceID,
-		Damage:          b.DPS,
+		Damage:          dmg,
 		HPLeft:          t.CurrentHP,
 	})
 
@@ -65,7 +72,7 @@ func (b *SimBuilding) dealDamageToTroop(t *SimTroop, currentTime float64) []Batt
 	return events
 }
 
-func allBuildingDestroyed(state *BattleState) bool {
+func AllBuildingDestroyed(state *BattleState) bool {
 	for _, b := range state.Buildings {
 		if !b.Destroyed {
 			return false

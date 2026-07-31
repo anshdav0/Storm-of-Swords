@@ -16,23 +16,18 @@ type DeploymentRequest struct {
 }
 
 type BattleResponse struct {
-	BattleID       int64              `json:"battle_id"`
-	StarsEarned    int                `json:"stars_earned"`
-	TrophiesGained int                `json:"trophies_gained"`
-	GoldLooted     int                `json:"gold_looted"`
-	IronLooted     int                `json:"iron_looted"`
-	WildfireLooted int                `json:"wildfire_looted"`
-	Events         []game.BattleEvent `json:"events"`
-	ReplayInput    game.BattleInput   `json:"replay_input"`
+	BattleID       int64 `json:"battle_id"`
+	StarsEarned    int   `json:"stars_earned"`
+	TrophiesGained int   `json:"trophies_gained"`
+	GoldLooted     int   `json:"gold_looted"`
+	IronLooted     int   `json:"iron_looted"`
+	WildfireLooted int   `json:"wildfire_looted"`
+	//Events         []game.BattleEvent `json:"events"`
+	//ReplayInput    game.BattleInput   `json:"replay_input"`
 }
 
-func (bs *BattleStore) Attack(ctx context.Context, attackerID int64, defenderID int64, deployRequests []DeploymentRequest, ts *TroopStore, vs *VillageStore, bus *BuildingStore) (*BattleResponse, error) {
+func (bs *BattleStore) Attack(ctx context.Context, attackerID int64, defenderID int64, vs *VillageStore, bus *BuildingStore, result game.BattleResult) (*BattleResponse, error) {
 
-	if attackerID == defenderID {
-		return nil, fmt.Errorf("cannot attack yourself")
-	}
-
-	//load both players' trophy counts
 	var attackerTrophies, defenderTrophies int
 	if err := bs.store.Pool.QueryRow(ctx,
 		`SELECT trophies FROM player WHERE id = $1`, attackerID,
@@ -53,42 +48,23 @@ func (bs *BattleStore) Attack(ctx context.Context, attackerID int64, defenderID 
 		return nil, fmt.Errorf("Attack fetch defender resources: %w", err)
 	}
 
-	snapshot, err := bs.LoadDefenderSnapshot(ctx, defenderID)
-	if err != nil {
-		return nil, err
-	}
+	// mainCastleID := findMainCastleID(snapshot, )
+	// mainCastleDestroyed := false
+	// for _, b := range finalStateofDefender.Buildings {
+	// 	if b.VillageBuildingID == mainCastleID && b.Destroyed {
+	// 		mainCastleDestroyed = true
+	// 	}
+	// }
 
-	deployment, err := bs.BuildDeployment(ctx, attackerID, deployRequests, ts)
-	if err != nil {
-		return nil, err
-	}
+	// stars := result.StarsEarned
+	// if mainCastleDestroyed {
+	// 	stars++
+	// }
 
-	input := game.BattleInput{
-		DefenderSnapshot:   snapshot,
-		AttackerDeployment: deployment,
-	}
+	trophiesGained := computeTrophies(attackerTrophies, defenderTrophies, result.StarsEarned)
+	Loot := computeLoot(cost, result.StarsEarned)
 
-	events, result := game.StartBattle(input)
-
-	// extra logic for extra star as there was no accounting for the main building destroyed or not
-	finalStateofDefender := game.GiveFinalState(input)
-	mainCastleID := findMainCastleID(snapshot)
-	mainCastleDestroyed := false
-	for _, b := range finalStateofDefender.Buildings {
-		if b.VillageBuildingID == mainCastleID && b.Destroyed {
-			mainCastleDestroyed = true
-		}
-	}
-
-	stars := result.StarsEarned
-	if mainCastleDestroyed {
-		stars++
-	}
-
-	trophiesGained := computeTrophies(attackerTrophies, defenderTrophies, stars)
-	Loot := computeLoot(cost, stars)
-
-	replayJSON, err := json.Marshal(input)
+	replayJSON, err := json.Marshal("ee")
 	if err != nil {
 		return nil, fmt.Errorf("Attack Marshal replay: %w", err)
 	}
@@ -104,7 +80,7 @@ func (bs *BattleStore) Attack(ctx context.Context, attackerID int64, defenderID 
 		INSERT INTO battles (attacker_id, defender_id, trophies_gained, star_earned, gold_looted, iron_looted, wildfire_looted, replay_data)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id
-	`, attackerID, defenderID, trophiesGained, stars, Loot.Gold, Loot.Iron, Loot.Wildfire, replayJSON,
+	`, attackerID, defenderID, trophiesGained, result.StarsEarned, Loot.Gold, Loot.Iron, Loot.Wildfire, replayJSON,
 	).Scan(&battleID)
 	if err != nil {
 		return nil, fmt.Errorf("Attack insert battle: %w", err)
@@ -153,22 +129,20 @@ func (bs *BattleStore) Attack(ctx context.Context, attackerID int64, defenderID 
 
 	return &BattleResponse{
 		BattleID:       battleID,
-		StarsEarned:    stars,
+		StarsEarned:    result.StarsEarned,
 		TrophiesGained: trophiesGained,
 		GoldLooted:     -Loot.Gold,
 		IronLooted:     -Loot.Iron,
 		WildfireLooted: -Loot.Wildfire,
-		Events:         events,
-		ReplayInput:    input,
 	}, nil
 
 }
 
-func findMainCastleID(snapshot []game.OpponentBuilding) int64 {
-	for _, b := range snapshot {
-		if b.BuildingName == "Main Castle" {
-			return b.VillageBuildingID
-		}
-	}
-	return -1
-}
+// func findMainCastleID(snapshot []game.OpponentBuilding) int64 {
+// 	for _, b := range snapshot {
+// 		if b.BuildingName == "Main Castle" {
+// 			return b.VillageBuildingID
+// 		}
+// 	}
+// 	return -1
+// }

@@ -1,14 +1,17 @@
 package game
 
+const TICK_DURATION = 0.1
+
 type DeployedTroop struct {
-	TroopID   int64   `json:"troop_id"`
-	TroopType string  `json:"troop_type"`
-	Quantity  int     `json:"quantity"`
-	X         int     `json:"x"`
-	Y         int     `json:"y"`
-	HP        int     `json:"hp"`
-	Damage    int     `json:"damage"`
-	Speed     float64 `json:"speed"`
+	TroopID    int64   `json:"troop_id"`
+	TroopType  string  `json:"troop_type"`
+	Quantity   int     `json:"quantity"`
+	X          int     `json:"x"`
+	Y          int     `json:"y"`
+	HP         int     `json:"hp"`
+	Damage     int     `json:"damage"`
+	Speed      float64 `json:"speed"`
+	DeployedAt float64 `json:"deployed_at"`
 }
 
 type OpponentBuilding struct {
@@ -55,9 +58,11 @@ type SimTroop struct {
 }
 
 type BattleState struct {
-	CurrentTime float64
-	Buildings   []SimBuilding
-	Troops      []SimTroop
+	CurrentTime   float64
+	Buildings     []SimBuilding
+	Troops        []SimTroop
+	PendingTroops []SimTroop
+	DeployTimes   []float64
 }
 
 type EventType string
@@ -68,6 +73,7 @@ const (
 	EventTroopDied         EventType = "troop_died"
 	EventBuildingDamaged   EventType = "building_damaged"
 	EventBuildingDestroyed EventType = "building_destroyed"
+	EventTroopDeployed     EventType = "troop_deployed"
 )
 
 type BattleEvent struct {

@@ -12,7 +12,7 @@ func TestRunBattle_SingleTroopDestroysWeakBuilding(t *testing.T) {
 		},
 	}
 
-	_, result := StartBattle(input)
+	_, result, _ := StartBattle(input)
 
 	if result.BuildingsDestroyed != 1 {
 		t.Errorf("expected 1 building destroyed, got %d", result.BuildingsDestroyed)
@@ -33,7 +33,7 @@ func TestRunBattle_DefenseKillsWeakTroopBeforeReachingBuilding(t *testing.T) {
 		},
 	}
 
-	_, result := StartBattle(input)
+	_, result, _ := StartBattle(input)
 
 	if result.BuildingsDestroyed != 0 {
 		t.Errorf("expected building to survive, got %d destroyed", result.BuildingsDestroyed)

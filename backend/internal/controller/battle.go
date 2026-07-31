@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"encoding/json"
+	//"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -64,24 +64,24 @@ func (bc *BattleControl) GetDefenderVillage(w http.ResponseWriter, r *http.Reque
 	writeJSON(w, http.StatusOK, snapshot)
 }
 
-func (bc *BattleControl) Attack(w http.ResponseWriter, r *http.Request) {
-	playerID, ok := middleware.GetPlayerID(r)
-	if !ok {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+// func (bc *BattleControl) Attack(w http.ResponseWriter, r *http.Request) {
+// 	playerID, ok := middleware.GetPlayerID(r)
+// 	if !ok {
+// 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+// 		return
+// 	}
 
-	var req attackRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
+// 	var req attackRequest
+// 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+// 		http.Error(w, "Invalid request body", http.StatusBadRequest)
+// 		return
+// 	}
 
-	result, err := bc.bts.Attack(r.Context(), playerID, req.DefenderID, req.Deployment, bc.ts, bc.vs, bc.bs)
-	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
-		return
-	}
+// 	result, err := bc.bts.Attack(r.Context(), playerID, req.DefenderID, bc.ts, bc.vs, bc.bs)
+// 	if err != nil {
+// 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+// 		return
+// 	}
 
-	writeJSON(w, http.StatusOK, result)
-}
+// 	writeJSON(w, http.StatusOK, result)
+// }
