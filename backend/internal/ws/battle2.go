@@ -111,7 +111,6 @@ func (bh *BattleHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 	deployCh := make(chan []game.DeployedTroop, 32)
 	done := make(chan struct{})
 
-	// Background thread solely handles parsing raw WS socket input frame streams
 	go func() {
 		defer close(done)
 		for {
@@ -150,12 +149,11 @@ func (bh *BattleHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 			mu.Lock()
 			var tickEvents []game.BattleEvent
 
-			// 1. Drain incoming live reinforcement units from safe queue channel
+			//Drain incoming live reinforcement units from safe queue channel
 			drained := false
 			for !drained {
 				select {
 				case troops := <-deployCh:
-					// Handled safely inside execution frame lock boundary
 					deployEvents := state.AddPendingTroops(troops, &nextInstanceID)
 					tickEvents = append(tickEvents, deployEvents...)
 				default:
@@ -163,13 +161,11 @@ func (bh *BattleHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
-			// 2. RUN SIMULATION STEP ENGINE: Calculates physics, path movements, attacks, and deaths
 			simulationEvents := game.Tick(state)
 			tickEvents = append(tickEvents, simulationEvents...)
 
 			mu.Unlock()
 
-			// 3. Keep JSON arrays from marshalling as literal 'null' text elements
 			if tickEvents == nil {
 				tickEvents = []game.BattleEvent{}
 			}
@@ -183,7 +179,6 @@ func (bh *BattleHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 				goto battleEnd
 			}
 
-			// 4. Validate evaluation thresholds using the freshly adjusted memory metrics
 			if game.AllBuildingDestroyed(state) || game.AllTroopsDead(state) {
 				goto battleEnd
 			}

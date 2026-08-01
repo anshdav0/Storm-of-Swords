@@ -63,8 +63,6 @@ export function BattleCanvas({
         }
     }, [phase, onAnimationComplete]);
 
-    // ── 1. REAL-TIME REMAINING QUANTITY CALCULATION ──
-    // Count how many troops of each type have successfully spawned onto the grid
     const deployedCounts = wsTroops.reduce((acc, t) => {
         acc[t.troopId] = (acc[t.troopId] || 0) + 1;
         return acc;
@@ -89,6 +87,13 @@ export function BattleCanvas({
         const x = Math.floor((e.clientX - rect.left) / TILE_PX);
         const y = Math.floor((e.clientY - rect.top)  / TILE_PX);
 
+        wsTroops.push({
+            troopId: selectedTroopId,
+            quantity: finalQty,
+            x,
+            y
+        } as any);
+        
         onMidBattleDeploy([{ troop_id: selectedTroopId, quantity: finalQty, x, y }]);
     };
 
