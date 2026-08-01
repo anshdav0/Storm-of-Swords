@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import React from 'react';
 import type { OpponentBuilding, DeploymentRequest } from "../../types";
 import { BuildingIcon, TroopIcon } from "../shared/AssetIcon";
 import "./BattleCanvas.css";
@@ -71,14 +72,12 @@ export function BattleCanvas({
     const handleGridClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (selectedTroopId === null) return;
         
-        // Find current structural reserve limit
         const entry = armyEntries.find(p => p.troop.id === selectedTroopId);
         if (!entry) return;
         
         const spawned = deployedCounts[selectedTroopId] || 0;
         const totalRemaining = Math.max(0, entry.quantity - spawned);
         
-        // Block actions if fully exhausted
         const desiredQty = quantities[selectedTroopId] || 1;
         const finalQty = Math.min(desiredQty, totalRemaining);
         if (finalQty <= 0) return;
@@ -86,13 +85,6 @@ export function BattleCanvas({
         const rect = e.currentTarget.getBoundingClientRect();
         const x = Math.floor((e.clientX - rect.left) / TILE_PX);
         const y = Math.floor((e.clientY - rect.top)  / TILE_PX);
-
-        wsTroops.push({
-            troopId: selectedTroopId,
-            quantity: finalQty,
-            x,
-            y
-        } as any);
         
         onMidBattleDeploy([{ troop_id: selectedTroopId, quantity: finalQty, x, y }]);
     };
@@ -166,8 +158,6 @@ export function BattleCanvas({
                                 t.state === "attacking" ? "animate-attack" : ""
                             }`}
                             style={{
-                                // ── 2. TRANSITION COORDINATE FIX ──
-                                // Center the element relative to its layout width parameters
                                 left:     t.x * TILE_PX,
                                 top:      t.y * TILE_PX,
                                 position: "absolute",
