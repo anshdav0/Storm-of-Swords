@@ -181,9 +181,7 @@ export function useBattleSocket(
 
        // Dynamically switch the port to 8080 while keeping the correct host name/protocol
         const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-        const hostName = window.location.hostname; // Extracts just "localhost" or the domain
-
-        const wsURL    = `${protocol}//${hostName}:8080/ws/battle?token=${token}`;
+        const wsURL    = `${protocol}//${window.location.host}/ws/battle?token=${token}`;
         const ws       = new WebSocket(wsURL);
         wsRef.current  = ws;
 
