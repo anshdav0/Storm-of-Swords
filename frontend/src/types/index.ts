@@ -152,11 +152,13 @@ export type BattleEventType =
     | "troop_died"
     | "building_damaged"
     | "building_destroyed"
+    | "troop_deployed"
 
 export interface BattleEvent {
     t:                    number
     type:                 BattleEventType
     troop_instance_id?:   number
+    troop_id?:            number
     to_x?:                number
     to_y?:                number
     village_building_id?: number
@@ -181,3 +183,21 @@ export interface DeploymentRequest {
     x:        number
     y:        number
 }
+
+export interface TickMessage {
+    type:   "tick"
+    tick:   number
+    events: BattleEvent[]
+}
+
+export interface EndMessage {
+    type:            "battle_end"
+    stars_earned:    number
+    trophies_gained: number
+    gold_looted:     number
+    iron_looted:     number
+    wildfire_looted: number
+    battle_id:       number
+}
+
+export type WSMessage = TickMessage | EndMessage
