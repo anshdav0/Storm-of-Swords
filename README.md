@@ -26,6 +26,7 @@ make up
 
 This builds and starts three containers — Postgres, the Go backend, and the React frontend. Migrations and seed data run automatically on startup, you don't need to do anything else.
 
+
 3. Open a browser to `http://localhost:3000`
 
 The API runs on `http://localhost:8080`.

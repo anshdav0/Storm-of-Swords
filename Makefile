@@ -24,3 +24,6 @@ clean:
 
 goserver:
 	go run backend/cmd/server/main.go
+
+frontendserver:
+	cd ./frontend && npm run dev
