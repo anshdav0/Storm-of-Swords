@@ -234,11 +234,11 @@ const affordable = canAffordUpgrade();
             <button
               className="panel-btn upgrade"
               onClick={() => onInstantUpgrade(building.id)}
-              disabled={isUpgrading}
+              disabled={isUpgrading || !affordable}
               style={{
-                backgroundColor: isUpgrading ? "#374151" : "#d97706", // Amber color when clickable
-                color: isUpgrading ? "#6b7280" : "#ffffff", 
-                cursor: isUpgrading ? "not-allowed" : "pointer" 
+                backgroundColor: isUpgrading || !affordable ? "#374151" : "#d97706", // Amber color when clickable
+                color: isUpgrading || !affordable ? "#6b7280" : "#ffffff", 
+                cursor: isUpgrading || !affordable ? "not-allowed" : "pointer" 
               }}
             >
               {isUpgrading ? "Starting..." : `⬆️ InstantUpgrade → Lv${building.level + 1}`}
