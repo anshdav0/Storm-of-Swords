@@ -13,20 +13,31 @@ const PlayerIDKey string = "player_id"
 func Auth(jwtSecret string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			var tokenStr string
 
+			// 1. Check standard Authorization header first
 			authHeader := r.Header.Get("Authorization")
-			if authHeader == "" {
+			if authHeader != "" {
+				parts := strings.SplitN(authHeader, " ", 2)
+				if len(parts) != 2 || parts[0] != "Bearer" {
+					http.Error(w, "Format must be: Bearer <token>", http.StatusUnauthorized)
+					return
+				}
+				tokenStr = parts[1]
+			}
+
+			// 2. Fallback: If no header, check URL parameters (e.g., for WebSockets)
+			if tokenStr == "" {
+				tokenStr = r.URL.Query().Get("token")
+			}
+
+			// 3. If still empty, reject request
+			if tokenStr == "" {
 				http.Error(w, "Authorization header required", http.StatusUnauthorized)
 				return
 			}
 
-			parts := strings.SplitN(authHeader, " ", 2)
-			if len(parts) != 2 || parts[0] != "Bearer" {
-				http.Error(w, "Format must be: Bearer <token>", http.StatusUnauthorized)
-				return
-			}
-			tokenStr := parts[1]
-
+			// --- Rest of your exact validation logic remains untouched ---
 			token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 				_, ok := token.Method.(*jwt.SigningMethodHMAC)
 				if !ok {
