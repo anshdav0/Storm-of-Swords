@@ -111,6 +111,7 @@ func (bh *BattleHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 	deployCh := make(chan []game.DeployedTroop, 32)
 	done := make(chan struct{})
 
+	// Background thread solely handles parsing raw WS socket input frame streams
 	go func() {
 		defer close(done)
 		for {
@@ -134,7 +135,8 @@ func (bh *BattleHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	const maxTicks = 1800
-	ticker := time.NewTicker(time.Duration(game.TICK_DURATION * float64(time.Second)))
+	tickInterval := time.Duration(game.TICK_DURATION * float64(time.Second))
+	ticker := time.NewTicker(tickInterval)
 	defer ticker.Stop()
 
 	var mu sync.Mutex
@@ -148,18 +150,29 @@ func (bh *BattleHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 			mu.Lock()
 			var tickEvents []game.BattleEvent
 
-			drained := true
-			for drained {
+			// 1. Drain incoming live reinforcement units from safe queue channel
+			drained := false
+			for !drained {
 				select {
 				case troops := <-deployCh:
+					// Handled safely inside execution frame lock boundary
 					deployEvents := state.AddPendingTroops(troops, &nextInstanceID)
 					tickEvents = append(tickEvents, deployEvents...)
 				default:
-					drained = false
+					drained = true
 				}
 			}
 
+			// 2. RUN SIMULATION STEP ENGINE: Calculates physics, path movements, attacks, and deaths
+			simulationEvents := game.Tick(state)
+			tickEvents = append(tickEvents, simulationEvents...)
+
 			mu.Unlock()
+
+			// 3. Keep JSON arrays from marshalling as literal 'null' text elements
+			if tickEvents == nil {
+				tickEvents = []game.BattleEvent{}
+			}
 
 			if err := conn.WriteJSON(TickMessage{
 				Type:   "tick",
@@ -170,6 +183,7 @@ func (bh *BattleHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 				goto battleEnd
 			}
 
+			// 4. Validate evaluation thresholds using the freshly adjusted memory metrics
 			if game.AllBuildingDestroyed(state) || game.AllTroopsDead(state) {
 				goto battleEnd
 			}
@@ -198,5 +212,4 @@ battleEnd:
 	}); err != nil {
 		log.Printf("WS write battle end message failed: %v", err)
 	}
-
 }
