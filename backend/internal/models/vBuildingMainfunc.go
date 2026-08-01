@@ -59,6 +59,77 @@ func (bs *BuildingStore) UpgradeBuild(ctx context.Context, villageID int64, vill
 	return nil
 }
 
+func (bs *BuildingStore) InstantUpgradeBuild(ctx context.Context, villageID int64, villageBuildingID int64, vs *VillageStore) error {
+	query := `
+		SELECT vb.level, vb.building_id, b.type
+		FROM village_building vb
+		JOIN building b ON b.id = vb.building_id
+		WHERE vb.id = $1 AND vb.village_id = $2
+	`
+
+	var level int
+	var buildingID int64
+	var btype string
+	err := bs.store.Pool.QueryRow(ctx, query, villageBuildingID, villageID).Scan(&level, &buildingID, &btype)
+	if err != nil {
+		return fmt.Errorf("UpgradeBuild fetch: %w", err)
+	}
+	if level >= 3 {
+		return fmt.Errorf("already at max level")
+	}
+
+	tx, err := bs.store.Pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("UpgradeBuild begin tx: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	_, err = tx.Exec(ctx, `
+		UPDATE village_building
+		SET level = $2
+		WHERE id = $1 AND village_id = $3
+	`, villageBuildingID, level+1, villageID)
+
+	if err != nil {
+		return fmt.Errorf("UpgradeBuild update: %w", err)
+	}
+	if err = tx.Commit(ctx); err != nil {
+		return fmt.Errorf("UpgradeBuild commit: %w", err)
+	}
+
+	cost := Cost{}
+	if level != 0 {
+		cost, err = bs.FindCostBuilding(ctx, btype, buildingID, level)
+		if err != nil {
+			return fmt.Errorf("UpgradeBuild cost fetch: %w", err)
+		}
+	}
+	tx, err = bs.store.Pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("UpgradeBuild begin tx: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	if level != 0 {
+		if a, err := vs.Purchase(ctx, tx, villageID, cost, nil); !a {
+			return err
+		}
+	}
+	_, err = tx.Exec(ctx, `
+		UPDATE village_building
+		SET upgrade_started = NOW()
+		WHERE id = $1
+	`, villageBuildingID)
+	if err != nil {
+		return fmt.Errorf("UpgradeBuild update: %w", err)
+	}
+	if err = tx.Commit(ctx); err != nil {
+		return fmt.Errorf("UpgradeBuild commit: %w", err)
+	}
+
+	return nil
+}
+
 func (bs *BuildingStore) MoveBuildingTx(ctx context.Context, tx pgx.Tx, playerID int64, placements []BuildPlacement) (*BuildPlacement, error) {
 	const MapSize = 20
 	var grid [MapSize][MapSize]bool
@@ -223,42 +294,4 @@ func (bs *BuildingStore) AddBuilding(ctx context.Context, tx pgx.Tx, playerID in
 	}
 	return nil
 
-}
-
-func (bs *BuildingStore) InstantUpgradeBuild(ctx context.Context, villageID int64, villageBuildingID int64, vs *VillageStore) error {
-	query := `
-		SELECT
-			vb.level
-		FROM village_building vb
-		WHERE vb.id = $1 AND vb.village_id = $2
-	`
-
-	var level int
-	err := bs.store.Pool.QueryRow(ctx, query, villageBuildingID, villageID).Scan(&level)
-	if err != nil {
-		return fmt.Errorf("UpgradeBuild fetch: %w", err)
-	}
-	if level >= 3 {
-		return fmt.Errorf("already at max level")
-	}
-
-	tx, err := bs.store.Pool.Begin(ctx)
-	if err != nil {
-		return fmt.Errorf("UpgradeBuild begin tx: %w", err)
-	}
-	defer tx.Rollback(ctx)
-
-	_, err = tx.Exec(ctx, `
-		UPDATE village_building
-		SET level = $2
-		WHERE id = $1 AND village_id = $3
-	`, villageBuildingID, level+1, villageID)
-
-	if err != nil {
-		return fmt.Errorf("UpgradeBuild update: %w", err)
-	}
-	if err = tx.Commit(ctx); err != nil {
-		return fmt.Errorf("UpgradeBuild commit: %w", err)
-	}
-	return nil
 }
