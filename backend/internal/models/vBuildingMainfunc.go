@@ -115,14 +115,6 @@ func (bs *BuildingStore) InstantUpgradeBuild(ctx context.Context, villageID int6
 			return err
 		}
 	}
-	_, err = tx.Exec(ctx, `
-		UPDATE village_building
-		SET upgrade_started = NOW()
-		WHERE id = $1
-	`, villageBuildingID)
-	if err != nil {
-		return fmt.Errorf("UpgradeBuild update: %w", err)
-	}
 	if err = tx.Commit(ctx); err != nil {
 		return fmt.Errorf("UpgradeBuild commit: %w", err)
 	}
