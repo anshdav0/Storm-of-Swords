@@ -68,18 +68,21 @@ export function useBattleSocket(
 
         switch (e.type) {
             case "troop_deployed":
+                // 🛡️ Filter out the malformed ghost event that lacks a troop type identifier
+                if (e.troop_id === undefined) return;
+
                 setTroops((prev) => {
                     if (prev.some((t) => t.id === targetId)) return prev;
-                    const finalTroopId = e.troop_id ?? 1;
+                    
                     return [...prev, {
                         id:      targetId,
-                        troopId: finalTroopId, // server doesn't send troop_id in events yet — see note below
+                        troopId: e.troop_id as number,
                         x:       e.to_x!,
                         y:       e.to_y!,
                         hp:      100,
                         maxHp:   100,
                         dead:    false,
-                        color:   "#f59e0b",
+                        color:   getTroopColor(String(e.troop_id)),
                         state:   "idle" as const,
                     }];
                 });
