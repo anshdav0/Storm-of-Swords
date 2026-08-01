@@ -80,6 +80,7 @@ type BattleEvent struct {
 	Time              float64   `json:"t"`
 	Type              EventType `json:"type"`
 	TroopInstanceID   int       `json:"troop_instance_id,omitempty"`
+	TroopID           int64     `json:"troop_id,omitempty"`
 	ToX               float64   `json:"to_x,omitempty"`
 	ToY               float64   `json:"to_y,omitempty"`
 	VillageBuildingID int64     `json:"village_building_id,omitempty"`

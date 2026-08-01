@@ -229,6 +229,7 @@ func (state *BattleState) SpawnPendingTroops() []BattleEvent {
 				Time:            state.CurrentTime,
 				Type:            EventTroopDeployed,
 				TroopInstanceID: t.InstanceID,
+				TroopID:         t.TroopID,
 				ToX:             t.X,
 				ToY:             t.Y,
 			})

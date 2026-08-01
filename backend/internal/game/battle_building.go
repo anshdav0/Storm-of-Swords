@@ -56,6 +56,7 @@ func (b *SimBuilding) dealDamageToTroop(t *SimTroop, dmg int, currentTime float6
 		Time:            currentTime,
 		Type:            EventTroopDamaged,
 		TroopInstanceID: t.InstanceID,
+		TroopID:         t.TroopID,
 		Damage:          dmg,
 		HPLeft:          t.CurrentHP,
 	})
@@ -66,6 +67,7 @@ func (b *SimBuilding) dealDamageToTroop(t *SimTroop, dmg int, currentTime float6
 			Time:            currentTime,
 			Type:            EventTroopDied,
 			TroopInstanceID: t.InstanceID,
+			TroopID:         t.TroopID,
 		})
 	}
 

@@ -35,6 +35,7 @@ func (t *SimTroop) Act(state *BattleState) []BattleEvent {
 			Type:              EventBuildingDamaged,
 			VillageBuildingID: target.VillageBuildingID,
 			TroopInstanceID:   t.InstanceID,
+			TroopID:           t.TroopID,
 			Damage:            tickDamage,
 			HPLeft:            target.CurrentHP,
 		})
@@ -61,6 +62,7 @@ func (t *SimTroop) Act(state *BattleState) []BattleEvent {
 			Time:            state.CurrentTime,
 			Type:            EventTroopMoved,
 			TroopInstanceID: t.InstanceID,
+			TroopID:         t.TroopID,
 			ToX:             t.X,
 			ToY:             t.Y,
 		})
