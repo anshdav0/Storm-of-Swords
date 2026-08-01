@@ -53,8 +53,8 @@ func main() {
 	}).Methods("GET")
 
 	//pages for login/register
-	router.HandleFunc("/register", authCtrl.Register).Methods(http.MethodPost)
-	router.HandleFunc("/login", authCtrl.Login).Methods(http.MethodPost)
+	router.HandleFunc("/api/register", authCtrl.Register).Methods(http.MethodPost)
+	router.HandleFunc("/api/login", authCtrl.Login).Methods(http.MethodPost)
 	router.HandleFunc("/api/gamedata", gameDataCtrl.GetGameData).Methods("GET")
 
 	protected := router.PathPrefix("").Subrouter()

@@ -14,10 +14,10 @@ import type {
 
 // Auth
 export const register = (username: string, password: string) =>
-  apiClient.post<AuthResponse>("/register", { username, password });
+  apiClient.post<AuthResponse>("/api/register", { username, password });
 
 export const login = (username: string, password: string) =>
-  apiClient.post<AuthResponse>("/login", { username, password });
+  apiClient.post<AuthResponse>("/api/login", { username, password });
 
 // Village
 export const getVillage = () => apiClient.get<VillageResponse>("/api/village");

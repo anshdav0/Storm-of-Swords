@@ -28,7 +28,7 @@ apiClient.interceptors.response.use(
       localStorage.removeItem("token");
       localStorage.removeItem("player_id");
       localStorage.removeItem("username");
-      window.location.href = "/login";
+      window.location.href = "/api/login";
     }
     return Promise.reject(error);
   },
