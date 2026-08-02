@@ -105,9 +105,18 @@ export function BattleCanvas({
         }));
 
     return (
-        <div style={{ display: "flex", gap: "24px", alignItems: "flex-start", flexWrap: "wrap", justifyContent: "center" }}>
+        <div style={{ 
+            display: "flex", 
+            flexDirection: "row", 
+            gap: "12px", 
+            alignItems: "flex-start", 
+            justifyContent: "center",
+            width: "100%",
+            maxWidth: "1250px",
+            margin: "0 auto"
+        }}>
             {/* ── Main battle grid ── */}
-            <div className="battle-canvas-wrapper">
+            <div className="battle-canvas-wrapper" style={{ flexShrink: 0 }}>
                 <div className="battle-time">t = {currentTime.toFixed(1)}s</div>
 
                 <div
@@ -191,7 +200,14 @@ export function BattleCanvas({
             </div>
 
             {/* ── Mid-battle deploy sidebar ── */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: "220px", maxWidth: "260px" }}>
+            <div style={{ 
+                display: "flex", 
+                flexDirection: "column", 
+                gap: "8px", 
+                width: "260px", 
+                flexShrink: 0, 
+                paddingTop: "40px" 
+            }}>
                 <h3 style={{ color: "#f59e0b", fontSize: "14px", margin: 0 }}>⚔️ Reinforcements</h3>
 
                 <div className="deploy-troop-list">
