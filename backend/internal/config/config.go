@@ -24,11 +24,15 @@ func LoadConfig() *Configure_db {
 	cfg := &Configure_db{
 		Go_Port:   getEnv("SERVER_PORT", "8080"),
 		DBURL:     getEnv("DATABASE_URL", ""),
-		JWTSecret: getEnv("JWT_SECRET", "default_secret_key"),
+		JWTSecret: getEnv("JWT_SECRET", ""),
 	}
 
 	if cfg.DBURL == "" {
 		log.Fatal("Critical Error: DATABASE_URL environment variable is required")
+	}
+
+	if cfg.JWTSecret == "" {
+		log.Fatal("Critical Error: JWT_SECRET environment variable is required")
 	}
 
 	return cfg
