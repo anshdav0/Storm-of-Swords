@@ -36,6 +36,7 @@ func (bc *BattleControl) FindOpponent(w http.ResponseWriter, r *http.Request) {
 	opponent, err := bc.bts.FindOpponent(r.Context(), playerID)
 	if err != nil {
 		writeJSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
+		http.Error(w, "Opponent not found", http.StatusNotFound)
 		return
 	}
 
@@ -51,13 +52,13 @@ func (bc *BattleControl) GetDefenderVillage(w http.ResponseWriter, r *http.Reque
 
 	defenderID, err := strconv.ParseInt(mux.Vars(r)["village_id"], 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid village id", http.StatusBadRequest)
+		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
 
 	snapshot, err := bc.bts.LoadDefenderSnapshot(r.Context(), defenderID)
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
 

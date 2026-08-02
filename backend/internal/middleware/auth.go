@@ -20,7 +20,7 @@ func Auth(jwtSecret string) func(http.Handler) http.Handler {
 			if authHeader != "" {
 				parts := strings.SplitN(authHeader, " ", 2)
 				if len(parts) != 2 || parts[0] != "Bearer" {
-					http.Error(w, "Format must be: Bearer <token>", http.StatusUnauthorized)
+					http.Error(w, "Format issue", http.StatusUnauthorized)
 					return
 				}
 				tokenStr = parts[1]
@@ -37,7 +37,6 @@ func Auth(jwtSecret string) func(http.Handler) http.Handler {
 				return
 			}
 
-			// --- Rest of your exact validation logic remains untouched ---
 			token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 				_, ok := token.Method.(*jwt.SigningMethodHMAC)
 				if !ok {

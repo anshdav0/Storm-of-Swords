@@ -32,13 +32,13 @@ func (rc *ResourceControl) CollectResources(w http.ResponseWriter, r *http.Reque
 	case "gold", "iron", "wildfire":
 		// valid
 	default:
-		http.Error(w, "Invalid resource type — must be gold, iron, or wildfire", http.StatusBadRequest)
+		http.Error(w, "Cant collect resources", http.StatusBadRequest)
 		return
 	}
 
 	result, err := rc.vs.CollectResouces(r.Context(), playerID, resourceType, rc.bs)
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		http.Error(w, "Cant collect resources", http.StatusBadRequest)
 		return
 	}
 

@@ -64,7 +64,6 @@ func (bh *BattleHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Printf("Websocket upgrade failed: %v", err)
 		return
 	}
 	defer conn.Close()
@@ -73,30 +72,25 @@ func (bh *BattleHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 
 	_, raw, err := conn.ReadMessage()
 	if err != nil {
-		log.Printf("WS read start message: %v", err)
 		return
 	}
 
 	var startMsg StartBattleMessage
 	if err := json.Unmarshal(raw, &startMsg); err != nil || startMsg.Type != "start" {
-		conn.WriteJSON(map[string]string{"error": "first messsage type invlaid"})
 		return
 	}
 
 	if startMsg.DefenderID == playerID {
-		conn.WriteJSON(map[string]string{"error": "cannot attack yourself"})
 		return
 	}
 
 	snapshot, err := bh.bs.LoadDefenderSnapshot(ctx, startMsg.DefenderID)
 	if err != nil {
-		conn.WriteJSON(map[string]string{"error": err.Error()})
 		return
 	}
 
 	deployment, err := bh.bs.BuildDeployment(ctx, playerID, startMsg.Deployment, bh.ts)
 	if err != nil {
-		conn.WriteJSON(map[string]string{"error": err.Error()})
 		return
 	}
 
@@ -125,7 +119,6 @@ func (bh *BattleHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 
 			troops, err := bh.bs.BuildDeployment(ctx, playerID, msg.Deployment, bh.ts)
 			if err != nil {
-				conn.WriteJSON(map[string]string{"error": err.Error()})
 				continue
 			}
 
@@ -175,7 +168,6 @@ func (bh *BattleHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 				Tick:   state.CurrentTime,
 				Events: tickEvents,
 			}); err != nil {
-				log.Printf("WS write tick: %v", err)
 				goto battleEnd
 			}
 
@@ -191,8 +183,6 @@ battleEnd:
 	result := game.ComputeResult(state, snapshot)
 	resp, err := bh.bs.Attack(ctx, playerID, startMsg.DefenderID, bh.vs, bh.bus, result)
 	if err != nil {
-		log.Printf("Failed to save battle results to database: %v", err)
-		conn.WriteJSON(map[string]string{"error": "internal server error saving battle"})
 		return
 	}
 

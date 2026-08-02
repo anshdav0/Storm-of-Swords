@@ -49,33 +49,33 @@ func (vc *VillageControl) GetVillageBuildings(w http.ResponseWriter, r *http.Req
 	ctx := r.Context()
 
 	if err := vc.bs.CheckforUpdates(ctx, playerID); err != nil {
-		http.Error(w, "Failed to get update data", http.StatusInternalServerError)
+		http.Error(w, "Upgade failed", http.StatusInternalServerError)
 	}
 
 	village, err := vc.vs.GetVillage(ctx, playerID)
 	if err != nil {
-		http.Error(w, "Failed to fetch village", http.StatusInternalServerError)
+		http.Error(w, "Upgrade Failed", http.StatusInternalServerError)
 		return
 	}
 
 	//getting data for defense building
 	defense, err := vc.bs.GetDefBuilds(ctx, playerID)
 	if err != nil {
-		http.Error(w, "Failed to fetch defense buildings", http.StatusInternalServerError)
+		http.Error(w, "Upgrade Failed", http.StatusInternalServerError)
 		return
 	}
 
 	//getting data for storage building
 	storage, err := vc.bs.GetStorBuilds(ctx, playerID)
 	if err != nil {
-		http.Error(w, "Failed to fetch storage buildings", http.StatusInternalServerError)
+		http.Error(w, "Upgrade Failed", http.StatusInternalServerError)
 		return
 	}
 
 	//getting data for producer building
 	producer, err := vc.bs.GetProdBuilds(ctx, playerID)
 	if err != nil {
-		http.Error(w, "Failed to fetch producer buildings", http.StatusInternalServerError)
+		http.Error(w, "Upgrade Failed", http.StatusInternalServerError)
 		return
 	}
 
@@ -106,9 +106,6 @@ func (vc *VillageControl) SaveLayout(w http.ResponseWriter, r *http.Request) {
 	if vc.CheckLayoutCorrectness(ctx, playerID, req.Placements) {
 	} else {
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{
-			"error": "Rejected: Payload must contain the complete village layout.",
-		})
 		return
 	}
 
@@ -118,20 +115,11 @@ func (vc *VillageControl) SaveLayout(w http.ResponseWriter, r *http.Request) {
 		if failedPlacement != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
-
-			json.NewEncoder(w).Encode(map[string]any{
-				"error":            err.Error(),
-				"failed_placement": failedPlacement,
-			})
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{
-			"debug_database_error": err.Error(),
-		})
-		//http.Error(w, "Internal db error processing layout configuration", http.StatusInternalServerError)
 		return
 	}
 
@@ -148,7 +136,7 @@ func (vc *VillageControl) UpgradeBuilding(w http.ResponseWriter, r *http.Request
 	vars := mux.Vars(r)
 	villageBuildingID, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid building id", http.StatusBadRequest)
+		http.Error(w, "Upgrade Failed", http.StatusBadRequest)
 		return
 	}
 
@@ -161,7 +149,7 @@ func (vc *VillageControl) UpgradeBuilding(w http.ResponseWriter, r *http.Request
 			http.Error(w, msg, http.StatusBadRequest)
 			return
 		}
-		http.Error(w, "Failed to upgrade building", http.StatusInternalServerError)
+		http.Error(w, "Upgrade Failed", http.StatusInternalServerError)
 		return
 	}
 
@@ -186,9 +174,6 @@ func (vc *VillageControl) AddBuilding(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{
-			"error": "Rejected: Payload must contain the complete current village layout before addition.",
-		})
 		return
 	}
 
@@ -196,9 +181,6 @@ func (vc *VillageControl) AddBuilding(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{
-			"error": err.Error(),
-		})
 		return
 	}
 
@@ -241,7 +223,7 @@ func (vc *VillageControl) InstantUpgradeBuilding(w http.ResponseWriter, r *http.
 	vars := mux.Vars(r)
 	villageBuildingID, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid building id", http.StatusBadRequest)
+		http.Error(w, "Upgrade Failed", http.StatusBadRequest)
 		return
 	}
 
@@ -253,7 +235,7 @@ func (vc *VillageControl) InstantUpgradeBuilding(w http.ResponseWriter, r *http.
 			http.Error(w, msg, http.StatusBadRequest)
 			return
 		}
-		http.Error(w, "Failed to upgrade building", http.StatusInternalServerError)
+		http.Error(w, "Upgrade Failed", http.StatusInternalServerError)
 		return
 	}
 

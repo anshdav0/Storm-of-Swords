@@ -32,17 +32,17 @@ func (tc *TroopControl) RecruitTroop(w http.ResponseWriter, r *http.Request) {
 
 	var req recruitRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		http.Error(w, "Cant recruit", http.StatusBadRequest)
 		return
 	}
 	if req.Quantity <= 0 {
-		http.Error(w, "Quantity must be at least 1", http.StatusBadRequest)
+		http.Error(w, "Cant recruit", http.StatusBadRequest)
 		return
 	}
 
 	result, err := tc.ts.RecruitTroop(r.Context(), playerID, req.TroopID, req.Quantity, tc.vs, tc.bs)
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		http.Error(w, "Cant recruit", http.StatusBadRequest)
 		return
 	}
 
@@ -58,7 +58,7 @@ func (tc *TroopControl) GetArmy(w http.ResponseWriter, r *http.Request) {
 
 	army, err := tc.ts.GetArmy(r.Context(), playerID)
 	if err != nil {
-		http.Error(w, "Failed to fetch army", http.StatusInternalServerError)
+		http.Error(w, "Failed request", http.StatusInternalServerError)
 		return
 	}
 

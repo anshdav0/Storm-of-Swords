@@ -43,14 +43,14 @@ func (authctrl *AuthControl) Register(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		http.Error(w, "Invalid request body: ", http.StatusBadRequest)
+		http.Error(w, "Invalid request: ", http.StatusBadRequest)
 		return
 	}
 
 	//hashify pass
 	hash, err1 := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err1 != nil {
-		http.Error(w, "Failed to process password", http.StatusInternalServerError)
+		http.Error(w, "Failed to process request", http.StatusInternalServerError)
 		return
 	}
 
@@ -64,7 +64,7 @@ func (authctrl *AuthControl) Register(w http.ResponseWriter, r *http.Request) {
 	//generate token
 	token, err := authctrl.generateToken(player.ID)
 	if err != nil {
-		http.Error(w, "Accpunt created but Failed to generate token, try logging in: ", http.StatusInternalServerError)
+		http.Error(w, "Account created but cant login, try logging in through login page: ", http.StatusInternalServerError)
 		return
 	}
 
@@ -79,7 +79,7 @@ func (authctrl *AuthControl) Login(w http.ResponseWriter, r *http.Request) {
 	var req authenticationrequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
 
@@ -104,7 +104,7 @@ func (authctrl *AuthControl) Login(w http.ResponseWriter, r *http.Request) {
 	//generate token
 	token, err := authctrl.generateToken(player.ID)
 	if err != nil {
-		http.Error(w, "Try again, Failed to generate token", http.StatusInternalServerError)
+		http.Error(w, "Try again", http.StatusInternalServerError)
 		return
 	}
 
